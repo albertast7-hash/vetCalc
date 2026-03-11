@@ -7254,7 +7254,7 @@
 
         class VetCalculatorAPI {
             constructor() {
-                this.baseURL = 'https://n8n.vetpodobed.pro/webhook/web-calculator';
+                this.baseURL = 'https://api.vetpodobed.pro/webhook/web-calculator';
                 this.timeout = 15000;
             }
 
@@ -7629,7 +7629,7 @@
             constructor() {
                 this.tokenKey = 'vethelper_token';
                 this.deviceKey = 'vethelper_device_id';
-                this.authURL = 'https://n8n.vetpodobed.pro/webhook/auth';
+                this.authURL = 'https://api.vetpodobed.pro/webhook/auth';
             }
 
             /** Генерация device fingerprint */
@@ -10214,8 +10214,8 @@
         class AccountAPI {
             constructor(auth) {
                 this.auth = auth;
-                this.baseURL = 'https://n8n.vetpodobed.pro/webhook/account';
-                this.paymentURL = 'https://n8n.vetpodobed.pro/webhook/payment';
+                this.baseURL = 'https://api.vetpodobed.pro/webhook/account';
+                this.paymentURL = 'https://api.vetpodobed.pro/webhook/payment';
             }
 
             async _request(action, body = {}) {
@@ -10766,7 +10766,7 @@
 
                 try {
                     // Отправляем запрос на ручное продление через API
-                    const response = await fetch('https://n8n.vetpodobed.pro/webhook/admin-extend-subscription', {
+                    const response = await fetch('https://api.vetpodobed.pro/webhook/admin-extend-subscription', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
