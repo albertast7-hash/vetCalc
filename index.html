@@ -7924,8 +7924,11 @@
 
                     <div class="divider"></div>
 
-                    <p class="section-title">Дополнительные показатели <span class="optional">опционально</span></p>
-                    <div class="form-row">
+                    <p class="section-title" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;margin-bottom:0;user-select:none" id="infusionLabHeader">
+                        <span>Дополнительные показатели <span class="optional">опционально</span></span>
+                        <span id="infusionLabArrow" style="font-size:12px;color:var(--blue-600);transition:transform 0.3s ease">▼</span>
+                    </p>
+                    <div class="form-row" id="infusionLabBody" style="display:none">
                         <div class="form-group">
                             <label for="inf_k">Калий (K⁺) мЭкв/л</label>
                             <input type="number" id="inf_k" name="potassium" min="1" max="10" step="0.1" placeholder="4.5">
@@ -7979,33 +7982,15 @@
             }
 
             initLabToggle() {
-                if (window.innerWidth > 768) return;
-                setTimeout(() => {
-                    const titles = document.querySelectorAll('.section-title');
-                    let labTitle = null;
-                    titles.forEach(t => { if (t.textContent.includes('Лабораторные')) labTitle = t; });
-                    if (!labTitle) return;
-                    const labRow = labTitle.nextElementSibling;
-                    if (!labRow) return;
-                    labRow.style.display = 'none';
-                    labRow.style.transition = 'all 0.3s ease';
-                    labTitle.style.cursor = 'pointer';
-                    labTitle.style.position = 'relative';
-                    labTitle.style.paddingRight = '30px';
-                    const arrow = document.createElement('span');
-                    arrow.innerHTML = '▼';
-                    arrow.style.position = 'absolute';
-                    arrow.style.right = '0';
-                    arrow.style.transition = 'transform 0.3s ease';
-                    arrow.style.fontSize = '14px';
-                    arrow.style.color = 'var(--blue-600)';
-                    labTitle.appendChild(arrow);
-                    labTitle.addEventListener('click', () => {
-                        const isHidden = labRow.style.display === 'none';
-                        labRow.style.display = isHidden ? 'grid' : 'none';
-                        arrow.style.transform = isHidden ? 'rotate(180deg)' : 'rotate(0deg)';
-                    });
-                }, 100);
+                const header = document.getElementById('infusionLabHeader');
+                const body = document.getElementById('infusionLabBody');
+                const arrow = document.getElementById('infusionLabArrow');
+                if (!header || !body) return;
+                header.addEventListener('click', () => {
+                    const hidden = body.style.display === 'none';
+                    body.style.display = hidden ? 'grid' : 'none';
+                    if (arrow) arrow.style.transform = hidden ? 'rotate(180deg)' : 'rotate(0deg)';
+                });
             }
 
             initAnimalSelect() {
