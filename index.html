@@ -7761,19 +7761,20 @@
                     throw new Error('Нет соединения с сервером. Проверьте интернет.');
                 }
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сервера: ${response.status}`);
-                }
-
                 let data;
                 try {
                     data = await response.json();
                 } catch {
-                    throw new Error('Некорректный ответ сервера');
+                    throw new Error(response.ok ? 'Некорректный ответ сервера' : `Ошибка сервера: ${response.status}`);
                 }
 
-                if (!data.success) {
-                    throw new Error(data.error || 'Ошибка регистрации');
+                if (!response.ok || !data.success) {
+                    const messages = {
+                        409: 'Пользователь с таким email уже зарегистрирован',
+                        429: 'Слишком много попыток. Подождите и попробуйте снова',
+                        500: 'Ошибка сервера. Попробуйте позже'
+                    };
+                    throw new Error(data.error || messages[response.status] || `Ошибка сервера: ${response.status}`);
                 }
 
                 this.setToken(data.token);
@@ -7800,19 +7801,22 @@
                     throw new Error('Нет соединения с сервером. Проверьте интернет.');
                 }
 
-                if (!response.ok) {
-                    throw new Error(`Ошибка сервера: ${response.status}`);
-                }
-
                 let data;
                 try {
                     data = await response.json();
                 } catch {
-                    throw new Error('Некорректный ответ сервера');
+                    throw new Error(response.ok ? 'Некорректный ответ сервера' : `Ошибка сервера: ${response.status}`);
                 }
 
-                if (!data.success) {
-                    throw new Error(data.error || 'Ошибка входа');
+                if (!response.ok || !data.success) {
+                    const messages = {
+                        401: 'Неверный email или пароль',
+                        403: 'Доступ запрещён. Обратитесь в поддержку',
+                        404: 'Пользователь не найден',
+                        429: 'Слишком много попыток. Подождите и попробуйте снова',
+                        500: 'Ошибка сервера. Попробуйте позже'
+                    };
+                    throw new Error(data.error || messages[response.status] || `Ошибка сервера: ${response.status}`);
                 }
 
                 this.setToken(data.token);
