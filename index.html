@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="assets/icons/icon-512.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#a8d5a2">
-    <script src="https://widget.cloudpayments.ru/bundles/cloudpayments.js"></script>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.vetpodobed.pro https://script.google.com; font-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'">
     <style>
         /* =============================================
    VetCalc Pro — Design System
@@ -7312,7 +7312,7 @@
             <a href="#" onclick="document.getElementById('ofertaModal').style.display='block';return false" style="color:#94a3b8;text-decoration:underline;margin:0 8px">Оферта</a>
             <a href="mailto:bedopadvet@gmail.com" style="color:#94a3b8;text-decoration:underline;margin:0 8px">Контакты</a>
         </div>
-        <div>ИП самозанятая Подобед Е.В. · ИНН 774343286349</div>
+        <div>Самозанятая Подобед Е.В. · ИНН 774343286349</div>
         <div style="margin-top:4px;opacity:0.7">© 2026 VetHelper</div>
     </footer>
 
@@ -7408,8 +7408,7 @@
                     try {
                         data = JSON.parse(text);
                     } catch (e) {
-                        console.error('JSON parse error:', e);
-                        console.error('Response was:', text);
+                        console.error('JSON parse error:', e.message);
                         throw new Error('Некорректный ответ от сервера');
                     }
 
@@ -7607,7 +7606,7 @@
                             text += `Приготовление:`;
                             text += `\n• Наберите: ${r.final.drugVolume} мл`;
                             text += `\n• Доведите до: ${r.final.totalVolume} мл`;
-                            text += `\n• Скорость: ${r.final.ratePerHour} мл/ч`;
+                            text += `\n• Скорость: ${esc(r.final.ratePerHour)} мл/ч`;
                             text += `\n• Длительность: ${r.final.hours} ч`;
                         } else {
                             text += `Скорость введения: ${r.mlPerHour} мл/ч`;
@@ -7617,7 +7616,7 @@
                     case 'dka': {
                         let text = '';
                         if (r.glucose) {
-                            text += `Глюкоза: ${r.glucose} ммоль/л`;
+                            text += `Глюкоза: ${esc(r.glucose)} ммоль/л`;
                         }
                         if (r.fluidType) {
                             text += `\nИнфузия: ${r.fluidType}`;
@@ -7625,13 +7624,13 @@
                         if (r.stopInsulin) {
                             text += `\nИнсулин: ⛔ ОСТАНОВЛЕН`;
                         } else if (r.insulinRate) {
-                            text += `\nИнсулин: ${r.insulinRate} мл/ч`;
+                            text += `\nИнсулин: ${esc(r.insulinRate)} мл/ч`;
                         }
                         if (r.actrapid) {
-                            text += `\nАктрапид: ${r.actrapid.units} Ед (${r.actrapid.dosePerKg} Ед/кг)`;
+                            text += `\nАктрапид: ${esc(r.actrapid.units)} Ед (${esc(r.actrapid.dosePerKg)} Ед/кг)`;
                         }
                         if (r.projection) {
-                            text += `\nПрогноз: ${r.projection.after1h.min}–${r.projection.after1h.max} ммоль/л через 1 ч`;
+                            text += `\nПрогноз: ${esc(r.projection.after1h.min)}–${esc(r.projection.after1h.max)} ммоль/л через 1 ч`;
                         }
                         return text || 'Результат DKA';
                     }
@@ -9315,7 +9314,7 @@
                 const drugs = this.getCustomDrugs();
 
                 savedSelect.innerHTML = '<option value="">Ввести вручную</option>'
-                    + drugs.map(d => `<option value="${d.id}">${d.name} (${d.mgPerUnit} мг)</option>`).join('');
+                    + drugs.map(d => `<option value="${esc(d.id)}">${esc(d.name)} (${esc(d.mgPerUnit)} мг)</option>`).join('');
 
                 // Обновить кнопку "Мои препараты"
                 const manageBtn = document.getElementById('dosageManageBtn');
@@ -9353,13 +9352,13 @@
                 const formLabels = { tablet: 'таб.', capsule: 'капс.', solution: 'р-р', suspension: 'сусп.' };
 
                 list.innerHTML = drugs.map(d => `
-            <div class="drug-list-item" data-drug-id="${d.id}">
+            <div class="drug-list-item" data-drug-id="${esc(d.id)}">
                 <div class="drug-info">
-                    <div class="drug-name">${d.name}</div>
+                    <div class="drug-name">${esc(d.name)}</div>
                     <div class="drug-meta">
-                        ${d.mgPerUnit} мг, ${formLabels[d.formType] || d.formType}
-                        ${d.doseDog ? ` · собаки: ${d.doseDog} мг/кг` : ''}
-                        ${d.doseCat ? ` · кошки: ${d.doseCat} мг/кг` : ''}
+                        ${esc(d.mgPerUnit)} мг, ${esc(formLabels[d.formType] || d.formType)}
+                        ${d.doseDog ? ` · собаки: ${esc(d.doseDog)} мг/кг` : ''}
+                        ${d.doseCat ? ` · кошки: ${esc(d.doseCat)} мг/кг` : ''}
                     </div>
                 </div>
                 <div class="drug-actions">
@@ -9575,7 +9574,7 @@
 
                     html += '<div class="dosage-prescription-item' + (expanded ? ' rx-expanded' : '') + '" data-rx-id="' + item.id + '">'
                         + '<div class="rx-info" ' + (canChange ? 'title="\u041d\u0430\u0436\u043c\u0438\u0442\u0435 \u0434\u043b\u044f \u0441\u043c\u0435\u043d\u044b \u0434\u043e\u0437\u0438\u0440\u043e\u0432\u043a\u0438"' : '') + '>'
-                        + '<div class="rx-drug-name" style="font-size:var(--fs-base);font-weight:700;color:var(--text-primary)">' + item.drugName + ' \u2014 <span style="font-weight:700">' + doseText + ' ' + item.unitLabel + '</span>' + (canChange ? ' <span style="font-size:10px;color:var(--blue-600);font-weight:400;vertical-align:middle">(\u0438\u0437\u043c\u0435\u043d\u0438\u0442\u044c)</span>' : '') + '</div>'
+                        + '<div class="rx-drug-name" style="font-size:var(--fs-base);font-weight:700;color:var(--text-primary)">' + esc(item.drugName) + ' \u2014 <span style="font-weight:700">' + esc(doseText) + ' ' + esc(item.unitLabel) + '</span>' + (canChange ? ' <span style="font-size:10px;color:var(--blue-600);font-weight:400;vertical-align:middle">(\u0438\u0437\u043c\u0435\u043d\u0438\u0442\u044c)</span>' : '') + '</div>'
                         + '<div class="rx-detail">' + animalEmoji + ' ' + animalName + ', ' + item.weight + ' \u043a\u0433 \u00b7 ' + mgText + courseText + '</div>'
                         + '</div>'
                         + '<button type="button" class="btn-rx-edit" data-rx-id="' + item.id + '" title="\u0420\u0435\u0434\u0430\u043a\u0442\u0438\u0440\u043e\u0432\u0430\u0442\u044c">'
@@ -10345,7 +10344,7 @@
             async init() {
                 // Проверяем, является ли пользователь админом (для ручного управления подписками)
                 const userInfo = this.app.auth.getUserInfo();
-                this.isAdmin = userInfo?.email?.includes('admin') || userInfo?.email?.includes('vetpodobed');
+                this.isAdmin = userInfo?.isAdmin === true;
                 await this.loadData();
             }
 
@@ -10778,13 +10777,14 @@
                 }
 
                 try {
+                    const token = localStorage.getItem('vethelper_token');
                     const response = await fetch('https://api.vetpodobed.pro/webhook/activate-trial', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userId: userInfo.userId,
-                            token: localStorage.getItem('vethelper_token')
-                        })
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify({})
                     });
 
                     const data = await response.json();
@@ -10830,7 +10830,7 @@
                 } catch (err) {
                     // Fallback: показываем инструкцию для ручного внесения
                     this.app.showToast('Отправлен запрос администратору на продление', 'info');
-                    console.log('Admin extend request:', { months, userId: this.app.auth.getUserInfo()?.userId });
+                    console.log('Admin extend request failed');
                 }
             }
 
@@ -10899,6 +10899,14 @@
             window.app = new VetCalcApp();
             window.app.init();
         });
+
+        // Утилита экранирования HTML для защиты от XSS
+        function esc(str) {
+            if (str == null) return '';
+            const div = document.createElement('div');
+            div.textContent = String(str);
+            return div.innerHTML;
+        }
 
         class VetCalcApp {
             constructor() {
@@ -11271,7 +11279,7 @@
 
             renderResultJSON(data) {
                 if (!data || !data.success) {
-                    return `<div class="alert alert-warning">❌ ${data?.error || 'Ошибка расчёта'}</div>`;
+                    return `<div class="alert alert-warning">❌ ${esc(data?.error) || 'Ошибка расчёта'}</div>`;
                 }
 
                 const r = data.result;
@@ -11374,7 +11382,7 @@
                     <div class="infusion-inline-block__icon">💧</div>
                     <div class="infusion-inline-block__body">
                         <div class="infusion-inline-block__label">Раствор</div>
-                        <div class="infusion-inline-block__text">${r.fluid}</div>
+                        <div class="infusion-inline-block__text">${esc(r.fluid)}</div>
                     </div>
                 </div>` : ''}
 
@@ -11383,7 +11391,7 @@
                     <div class="infusion-inline-block__icon">📋</div>
                     <div class="infusion-inline-block__body">
                         <div class="infusion-inline-block__label">Контроль</div>
-                        <div class="infusion-inline-block__text">${r.monitoring.join(' • ')}</div>
+                        <div class="infusion-inline-block__text">${r.monitoring.map(m => esc(m)).join(' • ')}</div>
                     </div>
                 </div>` : ''}
 
@@ -11471,40 +11479,40 @@
                     if (r.kcl) {
                         extra += `<div class="result-block result-alert">
                     <h4>⚗️ Коррекция калия (4% KCl)</h4>
-                    <div class="result-item accent"><span class="label">Скорость</span><span class="value">${r.kcl.rate} мл/час</span></div>
-                    <p class="note">${r.kcl.note}</p>
+                    <div class="result-item accent"><span class="label">Скорость</span><span class="value">${esc(r.kcl.rate)} мл/час</span></div>
+                    <p class="note">${esc(r.kcl.note)}</p>
                 </div>`;
                     }
 
                     if (r.sodium) {
                         const s = r.sodium;
                         extra += `<div class="result-block result-alert"><h4>⚗️ Коррекция натрия</h4>`;
-                        extra += `<div class="result-item"><span class="label">Текущий Na</span><span class="value">${s.current} мЭкв/л (норма ${s.normMin}-${s.normMax})</span></div>`;
+                        extra += `<div class="result-item"><span class="label">Текущий Na</span><span class="value">${esc(s.current)} мЭкв/л (норма ${esc(s.normMin)}-${esc(s.normMax)})</span></div>`;
                         if (s.type === 'hyponatremia') {
-                            extra += `<div class="result-item"><span class="label">Ожидаемое увеличение Na<br>на 1 л 0.9% NaCl</span><span class="value">${s.deltaWith1L} мЭкв/л</span></div>`;
-                            extra += `<p class="note">⚡ Острая: ${s.acute}</p><p class="note">🐌 Хрон.: ${s.chronic}</p>`;
+                            extra += `<div class="result-item"><span class="label">Ожидаемое увеличение Na<br>на 1 л 0.9% NaCl</span><span class="value">${esc(s.deltaWith1L)} мЭкв/л</span></div>`;
+                            extra += `<p class="note">⚡ Острая: ${esc(s.acute)}</p><p class="note">🐌 Хрон.: ${esc(s.chronic)}</p>`;
                         } else {
-                            extra += `<div class="result-item"><span class="label">Дефицит воды</span><span class="value">${s.waterDeficit} мл</span></div>`;
-                            if (s.fluid) extra += `<div class="result-item"><span class="label">Раствор</span><span class="value">${s.fluid}</span></div>`;
-                            extra += `<p class="note">⚡ Острая: ~${s.acute.hours}ч (${s.acute.rate} мл/ч 5% глюкозы) — ${s.acute.note}</p>`;
-                            extra += `<p class="note">🐌 Хрон.: ~${s.chronic.hours}ч (${s.chronic.rate} мл/ч 5% глюкозы) — ${s.chronic.note}</p>`;
+                            extra += `<div class="result-item"><span class="label">Дефицит воды</span><span class="value">${esc(s.waterDeficit)} мл</span></div>`;
+                            if (s.fluid) extra += `<div class="result-item"><span class="label">Раствор</span><span class="value">${esc(s.fluid)}</span></div>`;
+                            extra += `<p class="note">⚡ Острая: ~${esc(s.acute.hours)}ч (${esc(s.acute.rate)} мл/ч 5% глюкозы) — ${esc(s.acute.note)}</p>`;
+                            extra += `<p class="note">🐌 Хрон.: ~${esc(s.chronic.hours)}ч (${esc(s.chronic.rate)} мл/ч 5% глюкозы) — ${esc(s.chronic.note)}</p>`;
                         }
                         extra += `</div>`;
                     }
 
                     if (r.shock) {
-                        extra += `<div class="result-block result-warn"><h4>🚨 Шок</h4><p>Болюс ${r.shock.bolus}, ${r.shock.repeats}</p></div>`;
+                        extra += `<div class="result-block result-warn"><h4>🚨 Шок</h4><p>Болюс ${esc(r.shock.bolus)}, ${esc(r.shock.repeats)}</p></div>`;
                     }
 
                     if (r.tbi) {
-                        extra += `<div class="result-block"><h4>🧠 ЧМТ</h4><p>${r.tbi.note}</p></div>`;
+                        extra += `<div class="result-block"><h4>🧠 ЧМТ</h4><p>${esc(r.tbi.note)}</p></div>`;
                     }
 
                     extra += this.renderWarnings(r.warnings);
 
                     if (r.additionalLossesDisclaimer) {
                         const text = r.additionalLossesDisclaimer.replace(/^_|_$/g, '');
-                        extra += `<div class="result-block result-warn"><p style="font-style: italic; font-size: 14px;">${text}</p></div>`;
+                        extra += `<div class="result-block result-warn"><p style="font-style: italic; font-size: 14px;">${esc(text)}</p></div>`;
                     }
 
                     extra += this.renderNotes(r.notes);
@@ -11628,7 +11636,7 @@
             // ─── Рендер: Подкожная инфузия ────────────────────────────
 
             renderSubcutaneous(r) {
-                let html = `<h3 class="result-title">💉 Подкожная: ${r.title}</h3>`;
+                let html = `<h3 class="result-title">💉 Подкожная: ${esc(r.title)}</h3>`;
 
                 // Предупреждения в самом начале
                 html += this.renderWarnings(r.warnings);
@@ -11643,7 +11651,7 @@
         </div>`;
 
                 // Правая карточка - Места введения
-                html += `<div class="info-card"><h4>📍 Места введения</h4><ul>${r.sites.map(s => `<li>${s}</li>`).join('')}</ul></div>`;
+                html += `<div class="info-card"><h4>📍 Места введения</h4><ul>${r.sites.map(s => `<li>${esc(s)}</li>`).join('')}</ul></div>`;
 
                 html += `</div>`; // Закрыть top-cards-grid
 
@@ -11651,25 +11659,25 @@
                 html += `<div class="info-grid">`;
 
                 // Раствор
-                html += `<div class="info-card"><h4>💧 Раствор</h4><p>${r.fluid}</p></div>`;
+                html += `<div class="info-card"><h4>💧 Раствор</h4><p>${esc(r.fluid)}</p></div>`;
 
                 // Схема введения
                 html += `<div class="info-card">`;
                 html += `<h4>💧 Схема введения</h4>`;
                 if (r.needsSplit) {
-                    html += `<p class="note">Объём превышает ${r.maxSingleDose} мл (20-30 мл/кг). Рекомендуется разделить:</p>`;
+                    html += `<p class="note">Объём превышает ${esc(r.maxSingleDose)} мл (20-30 мл/кг). Рекомендуется разделить:</p>`;
                     r.schedule.forEach(s => {
-                        html += `<div class="schedule-item"><span class="schedule-freq">${s.frequency}× в день</span><span class="schedule-vol">${s.volumePerDose} мл за раз</span></div>`;
+                        html += `<div class="schedule-item"><span class="schedule-freq">${esc(s.frequency)}× в день</span><span class="schedule-vol">${esc(s.volumePerDose)} мл за раз</span></div>`;
                     });
                 } else {
-                    html += `<div class="schedule-item schedule-item--single"><span class="schedule-freq">За 1 раз</span><span class="schedule-vol">${r.schedule[0].volumePerDose} мл</span></div>`;
+                    html += `<div class="schedule-item schedule-item--single"><span class="schedule-freq">За 1 раз</span><span class="schedule-vol">${esc(r.schedule[0].volumePerDose)} мл</span></div>`;
                 }
                 html += `</div>`;
 
                 html += `</div>`;
 
                 // Техника — полноширинный блок
-                html += `<div class="result-block"><h4>⏱ Техника</h4><p>Скорость: ${r.technique.speed}. Макс. ${r.technique.maxPerSite} на точку.</p></div>`;
+                html += `<div class="result-block"><h4>⏱ Техника</h4><p>Скорость: ${esc(r.technique.speed)}. Макс. ${esc(r.technique.maxPerSite)} на точку.</p></div>`;
 
                 return html;
             }
@@ -11677,7 +11685,7 @@
             // ─── Рендер: CRI ──────────────────────────────────────────
 
             renderCRI(r) {
-                let html = `<h3 class="result-title">💊 ${r.title}</h3>`;
+                let html = `<h3 class="result-title">💊 ${esc(r.title)}</h3>`;
 
                 html += `<div class="cri-result-layout">`;
 
@@ -11688,25 +11696,25 @@
                 if (!r.final) {
                     html += `<div class="result-block">
                 <h4>📊 Базовый расчёт</h4>
-                <div class="result-item accent"><span class="label">Колличество препарата вводимое за час</span><span class="value">${r.mlPerHour} мл</span></div>
-                <div class="result-item"><span class="label">Вы указали концентрацию препарата</span><span class="value">${r.concentrationLabel}</span></div>
+                <div class="result-item accent"><span class="label">Колличество препарата вводимое за час</span><span class="value">${esc(r.mlPerHour)} мл</span></div>
+                <div class="result-item"><span class="label">Вы указали концентрацию препарата</span><span class="value">${esc(r.concentrationLabel)}</span></div>
             </div>`;
                 }
 
                 if (r.final) {
                     html += `<div class="result-block">
                 <h4>💉 Приготовление раствора</h4>
-                <div class="result-item"><span class="label">1️⃣ Наберите в шприц</span><span class="value">${r.final.drugVolume} мл препарата</span></div>
-                <div class="result-item"><span class="label">2️⃣ Доведите раствором до</span><span class="value">${r.final.totalVolume} мл</span></div>
-                <div class="result-item accent"><span class="label">3️⃣ Ввоите со скоростью</span><span class="value">${r.final.ratePerHour} мл/ч</span></div>
-                <div class="result-item"><span class="label">4️⃣ Продолжительность</span><span class="value">${r.final.hours} ч</span></div>
+                <div class="result-item"><span class="label">1️⃣ Наберите в шприц</span><span class="value">${esc(r.final.drugVolume)} мл препарата</span></div>
+                <div class="result-item"><span class="label">2️⃣ Доведите раствором до</span><span class="value">${esc(r.final.totalVolume)} мл</span></div>
+                <div class="result-item accent"><span class="label">3️⃣ Ввоите со скоростью</span><span class="value">${esc(r.final.ratePerHour)} мл/ч</span></div>
+                <div class="result-item"><span class="label">4️⃣ Продолжительность</span><span class="value">${esc(r.final.hours)} ч</span></div>
             </div>`;
                 }
 
                 if (r.recalculated) {
                     html += `<div class="result-block">
-                <h4>🔄 Пересчёт (${r.recalculated.totalVolume} мл)</h4>
-                <p class="instruction">${r.recalculated.instruction}</p>
+                <h4>🔄 Пересчёт (${esc(r.recalculated.totalVolume)} мл)</h4>
+                <p class="instruction">${esc(r.recalculated.instruction)}</p>
             </div>`;
                 }
 
@@ -11758,7 +11766,7 @@
             // ─── Рендер: DKA ──────────────────────────────────────────
 
             renderDKA(r) {
-                let html = `<h3 class="result-title">🩸 Протокол DKA: ${r.title}</h3>`;
+                let html = `<h3 class="result-title">🩸 Протокол DKA: ${esc(r.title)}</h3>`;
 
                 // Предупреждения в начале
                 html += this.renderWarnings(r.warnings);
@@ -11769,33 +11777,33 @@
                 // Карточка 1: Текущий план
                 html += `<div class="result-card">
             <h4>📋 Текущий план</h4>
-            <div class="result-item"><span class="label">Глюкоза</span><span class="value">${r.glucose} ммоль/л</span></div>
-            <div class="result-item"><span class="label">Инфузия</span><span class="value">${r.fluidType}</span></div>
+            <div class="result-item"><span class="label">Глюкоза</span><span class="value">${esc(r.glucose)} ммоль/л</span></div>
+            <div class="result-item"><span class="label">Инфузия</span><span class="value">${esc(r.fluidType)}</span></div>
             ${r.stopInsulin
                         ? '<div class="result-item result-warn"><span class="label">Инсулин</span><span class="value">⛔ ОСТАНОВЛЕН</span></div>'
-                        : `<div class="result-item accent"><span class="label">Раствор с инсулином</span><span class="value">${r.insulinRate} мл/ч</span></div>`
+                        : `<div class="result-item accent"><span class="label">Раствор с инсулином</span><span class="value">${esc(r.insulinRate)} мл/ч</span></div>`
                     }
         </div>`;
 
                 // Карточка 2: Актрапид
                 html += `<div class="result-card">
             <h4>⚗️ Актрапид</h4>
-            <div class="result-item accent"><span class="label">Набрать</span><span class="value">${r.actrapid.units} Ед (${r.actrapid.dosePerKg} Ед/кг)</span></div>
-            <div class="result-item"><span class="label">Разведение</span><span class="value">${r.actrapid.dilution}</span></div>
-            <p class="note">⚠️ ${r.actrapid.note}</p>
+            <div class="result-item accent"><span class="label">Набрать</span><span class="value">${esc(r.actrapid.units)} Ед (${esc(r.actrapid.dosePerKg)} Ед/кг)</span></div>
+            <div class="result-item"><span class="label">Разведение</span><span class="value">${esc(r.actrapid.dilution)}</span></div>
+            <p class="note">⚠️ ${esc(r.actrapid.note)}</p>
         </div>`;
 
                 // Карточка 3: Прогноз
                 html += `<div class="result-card">
             <h4>📉 Прогноз через 1 час</h4>
-            <p>Снижение ${r.projection.dropMin}–${r.projection.dropMax} ммоль/л → <strong>${r.projection.after1h.min}–${r.projection.after1h.max}</strong> ммоль/л</p>
+            <p>Снижение ${esc(r.projection.dropMin)}–${esc(r.projection.dropMax)} ммоль/л → <strong>${esc(r.projection.after1h.min)}–${esc(r.projection.after1h.max)}</strong> ммоль/л</p>
         </div>`;
 
                 // Карточка 4: Мониторинг
                 html += `<div class="result-card">
             <h4>📋 Мониторинг</h4>
-            <p><strong>Каждый час:</strong> ${r.monitoring.hourly.join(', ')}</p>
-            <p><strong>Каждые 2-4ч:</strong> ${r.monitoring.every2to4h.join(', ')}</p>
+            <p><strong>Каждый час:</strong> ${r.monitoring.hourly.map(m => esc(m)).join(', ')}</p>
+            <p><strong>Каждые 2-4ч:</strong> ${r.monitoring.every2to4h.map(m => esc(m)).join(', ')}</p>
         </div>`;
 
                 html += `</div>`; // Закрыть result-grid
@@ -11807,7 +11815,7 @@
 
             renderDrug(r) {
                 if (!r.found) {
-                    return `<div class="alert alert-warning">🔍 ${r.message}</div>`;
+                    return `<div class="alert alert-warning">🔍 ${esc(r.message)}</div>`;
                 }
 
                 // Множественные результаты — показать карточки выбора
@@ -11830,8 +11838,8 @@
                 <div class="drug-select-card" data-drug-index="${i}" data-drug-json="${safeJson}">
                     <div class="drug-card-icon">💊</div>
                     <div class="drug-card-info">
-                        <div class="drug-card-name">${d.name}</div>
-                        <div class="drug-card-action">${d.action}</div>
+                        <div class="drug-card-name">${esc(d.name)}</div>
+                        <div class="drug-card-action">${esc(d.action)}</div>
                     </div>
                     <div class="drug-card-arrow">
                         <svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px">
@@ -11854,16 +11862,16 @@
                 Назад к списку
             </button>`;
                 }
-                html += `<h3 class="result-title">💊 ${d.name}</h3>`;
-                html += `<div class="result-block"><h4>🔍 Действие</h4><p>${d.action}</p></div>`;
+                html += `<h3 class="result-title">💊 ${esc(d.name)}</h3>`;
+                html += `<div class="result-block"><h4>🔍 Действие</h4><p>${esc(d.action)}</p></div>`;
                 html += `<div class="result-block">
             <h4>📋 Дозировки</h4>
-            <div class="result-item"><span class="label">🐕 Собаки</span><span class="value">${d.doseDog}</span></div>
-            <div class="result-item"><span class="label">🐈 Кошки</span><span class="value">${d.doseCat}</span></div>
+            <div class="result-item"><span class="label">🐕 Собаки</span><span class="value">${esc(d.doseDog)}</span></div>
+            <div class="result-item"><span class="label">🐈 Кошки</span><span class="value">${esc(d.doseCat)}</span></div>
         </div>`;
-                if (d.sideEffects) html += `<div class="result-block"><h4>⚠️ Побочные эффекты</h4><p>${d.sideEffects}</p></div>`;
-                if (d.notes) html += `<div class="result-block"><h4>📝 Примечания</h4><p>${d.notes}</p></div>`;
-                if (d.antidote) html += `<div class="result-block"><h4>💉 Антидот</h4><p>${d.antidote}</p></div>`;
+                if (d.sideEffects) html += `<div class="result-block"><h4>⚠️ Побочные эффекты</h4><p>${esc(d.sideEffects)}</p></div>`;
+                if (d.notes) html += `<div class="result-block"><h4>📝 Примечания</h4><p>${esc(d.notes)}</p></div>`;
+                if (d.antidote) html += `<div class="result-block"><h4>💉 Антидот</h4><p>${esc(d.antidote)}</p></div>`;
                 return html;
             }
 
@@ -11879,7 +11887,7 @@
                 const isLiquid = r.formType === 'solution' || r.formType === 'suspension';
                 const unitWord = r.formType === 'capsule' ? 'капс.' : 'таб.';
 
-                let html = `<h3 class="result-title" style="font-size:var(--fs-base);margin-bottom:var(--sp-xs)">💊 ${r.drugName} — ${animalEmoji} ${animalName}, ${r.weight} кг</h3>`;
+                let html = `<h3 class="result-title" style="font-size:var(--fs-base);margin-bottom:var(--sp-xs)">💊 ${esc(r.drugName)} — ${animalEmoji} ${animalName}, ${r.weight} кг</h3>`;
 
                 // ─── Компактная строка: доза + форма ───
                 html += `<div style="display:flex;align-items:center;gap:var(--sp-sm);margin-bottom:var(--sp-xs);flex-wrap:wrap">
@@ -11953,7 +11961,7 @@
                     // Предупреждения
                     if (r.warnings && r.warnings.length > 0) {
                         html += `<div class="alert alert-warning" style="margin-top:var(--sp-xs)">
-                    ${r.warnings.map(w => `⚠️ ${w}`).join('<br>')}
+                    ${r.warnings.map(w => `⚠️ ${esc(w)}`).join('<br>')}
                 </div>`;
                     }
                 }
@@ -11983,12 +11991,12 @@
 
             renderWarnings(warnings) {
                 if (!warnings || warnings.length === 0) return '';
-                return `<div class="result-block result-warn"><h4>⚠️ Предупреждения</h4><ul>${warnings.map(w => `<li>${w}</li>`).join('')}</ul></div>`;
+                return `<div class="result-block result-warn"><h4>⚠️ Предупреждения</h4><ul>${warnings.map(w => `<li>${esc(w)}</li>`).join('')}</ul></div>`;
             }
 
             renderNotes(notes) {
                 if (!notes || notes.length === 0) return '';
-                return `<div class="result-block"><h4>📝 Заметки</h4><ul>${notes.map(n => `<li>${n}</li>`).join('')}</ul></div>`;
+                return `<div class="result-block"><h4>📝 Заметки</h4><ul>${notes.map(n => `<li>${esc(n)}</li>`).join('')}</ul></div>`;
             }
 
             // ─── Loading / Error / Toast ──────────────────────────────
@@ -12066,7 +12074,7 @@
                     <span class="history-type">${this.history.getTypeName(item.type)}</span>
                     <span class="history-date">${this.history.formatDate(item.timestamp)}</span>
                 </div>
-                ${item.name ? `<div style="font-weight: 600; font-size: 14px; color: var(--text-primary); margin-bottom: 4px;">${item.name}</div>` : ''}
+                ${item.name ? `<div style="font-weight: 600; font-size: 14px; color: var(--text-primary); margin-bottom: 4px;">${esc(item.name)}</div>` : ''}
                 <div class="history-preview">${this.history.getPreview(item)}</div>
             </div>
         `).join('');
