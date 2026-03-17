@@ -53,18 +53,32 @@
   ],
   "screenshots": [
     {
-      "src": "assets/screenshots/screenshot-wide.png",
-      "sizes": "1280x720",
+      "src": "screen/wide-desktop.png",
+      "sizes": "1919x890",
       "type": "image/png",
       "form_factor": "wide",
       "label": "Главный экран калькулятора инфузий"
     },
     {
-      "src": "assets/screenshots/screenshot-narrow.png",
-      "sizes": "750x1334",
+      "src": "screen/narrow-infusion.png",
+      "sizes": "1442x3202",
       "type": "image/png",
       "form_factor": "narrow",
-      "label": "Мобильный вид калькулятора"
+      "label": "Калькулятор внутривенной инфузии"
+    },
+    {
+      "src": "screen/narrow-cri.png",
+      "sizes": "1442x3202",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Калькулятор CRI"
+    },
+    {
+      "src": "screen/narrow-drugs.png",
+      "sizes": "1442x3202",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Поиск препаратов"
     }
   ],
   "shortcuts": [
