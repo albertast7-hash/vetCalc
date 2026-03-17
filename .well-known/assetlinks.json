@@ -3,6 +3,6 @@
       "target": {
         "namespace": "android_app",
         "package_name": "pro.vetpodobed.twa",
-        "sha256_cert_fingerprints": ["9F:A6:B0:A1:C1:F0:C5:78:45:AB:2A:1D:F5:21:94:82:C2:27:BF:1B:11:3F:47:A6:4A:1F:D8:CA:82:AE:BF:6B"]
+        "sha256_cert_fingerprints": ["D4:56:C3:C0:CB:45:3F:EF:24:FC:6E:CE:77:F1:AA:C9:B8:12:12:49:44:FE:5B:0E:A1:FD:76:E9:1C:03:0C:8B"]
       }
     }]
