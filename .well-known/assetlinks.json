@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "pro.vetpodobed.twa",
+        "sha256_cert_fingerprints": ["9F:A6:B0:A1:C1:F0:C5:78:45:AB:2A:1D:F5:21:94:82:C2:27:BF:1B:11:3F:47:A6:4A:1F:D8:CA:82:AE:BF:6B"]
+      }
+    }]
