@@ -7343,33 +7343,8 @@
                     return false;
                 }
 
-                try {
-                    const payload = JSON.parse(atob(token.split('.')[1]));
-                    
-                    // Если токен истек — не перенаправляем, пусть request() обновит токен на бэкенде
-                    if (payload.exp && payload.exp < Date.now() / 1000) {
-                        // Токен истек, но подписка может быть активна
-                        // request() отправит запрос на бэкенд и получит newToken
-                        return true;
-                    }
-
-                    // Проверяем статус подписки
-                    const subStatus = payload.subscriptionStatus || 'inactive';
-                    const subExpires = payload.subscriptionExpires ? new Date(payload.subscriptionExpires) : null;
-                    const now = new Date();
-
-                    // Если подписка неактивна или истекла — показываем сообщение и перенаправляем
-                    if (subStatus !== 'active' || (subExpires && subExpires < now)) {
-                        app.showToast('Подписка неактивна. Оформите подписку в личном кабинете', 'error');
-                        window.location.hash = 'account';
-                        return false;
-                    }
-
-                    return true;
-                } catch (err) {
-                    // Если не удалось распарсить JWT — отправляем на сервер для проверки
-                    return true;
-                }
+                // Проверку подписки делает бэкенд — фронтенд только проверяет наличие токена
+                return true;
             }
 
             async request(type, params) {
