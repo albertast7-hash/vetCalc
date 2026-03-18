@@ -10435,8 +10435,13 @@
             }
 
             renderSubscription() {
-                const status = this.profile?.subscriptionStatus || 'inactive';
+                let status = this.profile?.subscriptionStatus || 'inactive';
                 const expires = this.profile?.subscriptionExpires;
+
+                // Если дата подписки прошла — принудительно expired
+                if (status === 'active' && expires && new Date(expires) < new Date()) {
+                    status = 'expired';
+                }
                 let statusClass, statusText, expiresText, badgeText;
 
                 switch (status) {
