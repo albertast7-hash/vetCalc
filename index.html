@@ -10804,8 +10804,29 @@
             }
 
             async handlePayment() {
-                // Временная заглушка — онлайн-оплата пока не подключена
-                this.app.showToast('Онлайн-оплата временно недоступна. Для оформления подписки свяжитесь с нами по e-mail: ast7-7@yandex.ru', 'info', 8000);
+                const payBtn = document.getElementById('payBtn');
+                const originalContent = payBtn ? payBtn.textContent : '';
+                if (payBtn) {
+                    payBtn.disabled = true;
+                    payBtn.textContent = 'Переход к оплате...';
+                }
+
+                try {
+                    const result = await this.api.initPayment();
+
+                    if (result.confirmation_url) {
+                        window.location.href = result.confirmation_url;
+                    } else {
+                        throw new Error(result.error || 'Не удалось создать платёж');
+                    }
+                } catch (err) {
+                    console.error('Payment error:', err);
+                    this.app.showToast('Ошибка при создании платежа. Попробуйте позже или свяжитесь с нами: ast7-7@yandex.ru', 'error', 8000);
+                    if (payBtn) {
+                        payBtn.disabled = false;
+                        payBtn.textContent = originalContent;
+                    }
+                }
             }
 
             async handleAdminExtend() {
@@ -10931,8 +10952,19 @@
                 this.initInstall();
                 this.initClinicalSignsToasts();
 
-                // Поддержка shortcuts: открытие нужного таба через ?tab=
+                // Обработка возврата после оплаты ЮKassa
                 const urlParams = new URLSearchParams(window.location.search);
+                const paymentStatus = urlParams.get('payment');
+                if (paymentStatus === 'pending') {
+                    // Очищаем URL от параметра payment
+                    const cleanURL = new URL(window.location);
+                    cleanURL.searchParams.delete('payment');
+                    if (!cleanURL.searchParams.get('tab')) cleanURL.searchParams.set('tab', 'account');
+                    window.history.replaceState({}, '', cleanURL);
+                    this.showToast('Оплата обрабатывается. Подписка активируется в течение минуты', 'info', 10000);
+                }
+
+                // Поддержка shortcuts: открытие нужного таба через ?tab=
                 const startTab = urlParams.get('tab');
                 if (startTab && document.querySelector(`.tab[data-calculator="${startTab}"]`)) {
                     document.querySelectorAll('.tab').forEach(b => {
