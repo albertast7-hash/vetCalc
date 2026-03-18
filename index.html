@@ -10674,8 +10674,10 @@
                     `;
                 } else {
                     const rows = this.payments.map(p => {
-                        const statusClass = p.status === 'success' ? 'success' : (p.status === 'pending' ? 'pending' : 'failed');
-                        const statusText = p.status === 'success' ? 'Успешно' : (p.status === 'pending' ? 'В обработке' : 'Ошибка');
+                        const isSuccess = p.status === 'success' || p.status === 'succeeded';
+                        const isPending = p.status === 'pending';
+                        const statusClass = isSuccess ? 'success' : (isPending ? 'pending' : 'failed');
+                        const statusText = isSuccess ? 'Успешно' : (isPending ? 'В обработке' : 'Ошибка');
                         return `<tr>
                         <td>${this.formatDate(p.created_at)}</td>
                         <td>${p.amount} ${p.currency || '₽'}</td>
