@@ -10459,7 +10459,7 @@
                         expiresText = '';
                 }
 
-                const btnText = status === 'active' ? 'Продлить подписку' : 'Оформить подписку';
+                // Кнопка оплаты скрыта при активной подписке
                 const showAnimation = status === 'active';
 
                 return `
@@ -10509,10 +10509,12 @@
                                 <div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:var(--sp-xs)">Доступ открывается сразу после оплаты. Подписка продлевается автоматически.</div>
                             </div>
 
+                            ${status !== 'active' ? `
                             <button class="btn-pay" id="payBtn">
                                 <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10H22" stroke="currentColor" stroke-width="2"/></svg>
-                                ${btnText}
+                                Оформить подписку
                             </button>
+                            ` : ''}
                             
                             ${status === 'inactive' ? `
                             <button class="btn-trial" id="trialBtn" style="margin-top:var(--sp-sm);background:var(--accent);color:#fff;width:100%;padding:var(--sp-md);border-radius:var(--rd-md);border:none;cursor:pointer;font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--sp-sm)">
