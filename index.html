@@ -9883,7 +9883,7 @@
                 if (form) form.addEventListener('submit', (e) => this.handleSubmit(e));
             }
 
-            static GOOGLE_SHEET_URL = 'https://script.google.com/macros/s/AKfycbxupeA5EBY9-x72DY4_JVw1v2O9AXiWdefGQn-U4P1NykHJTqDAPxZCnhu4yCaNa_3baA/exec';
+            static FEEDBACK_URL = 'https://api.vetpodobed.pro/webhook/feedback';
 
             async handleSubmit(e) {
                 e.preventDefault();
@@ -9900,24 +9900,11 @@
                 try {
                     this.app.showLoading();
 
-                    if (FeedbackForm.GOOGLE_SHEET_URL) {
-                        const params = new URLSearchParams();
-                        params.append('type', feedback.type);
-                        params.append('email', feedback.email);
-                        params.append('message', feedback.message);
-                        params.append('timestamp', feedback.timestamp);
-                        params.append('userAgent', feedback.userAgent);
-                        await fetch(FeedbackForm.GOOGLE_SHEET_URL, {
-                            method: 'POST',
-                            mode: 'no-cors',
-                            body: params
-                        });
-                    } else {
-                        // Фоллбэк: сохраняем локально, пока URL не настроен
-                        const feedbacks = JSON.parse(localStorage.getItem('vetcalc_feedback') || '[]');
-                        feedbacks.push(feedback);
-                        localStorage.setItem('vetcalc_feedback', JSON.stringify(feedbacks));
-                    }
+                    await fetch(FeedbackForm.FEEDBACK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(feedback)
+                    });
 
                     this.app.hideLoading();
                     this.app.showToast('✅ Спасибо за обратную связь!');
@@ -11294,17 +11281,15 @@
 
                     try {
                         this.showLoading();
-                        const params = new URLSearchParams();
-                        params.append('type', 'drug_request');
-                        params.append('email', email);
-                        params.append('message', 'Запрос на добавление препарата: ' + drugName);
-                        params.append('timestamp', new Date().toISOString());
-                        params.append('userAgent', navigator.userAgent);
-
-                        await fetch(FeedbackForm.GOOGLE_SHEET_URL, {
+                        await fetch(FeedbackForm.FEEDBACK_URL, {
                             method: 'POST',
-                            mode: 'no-cors',
-                            body: params
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                type: 'drug_request',
+                                email: email,
+                                message: 'Запрос на добавление препарата: ' + drugName,
+                                timestamp: new Date().toISOString()
+                            })
                         });
 
                         this.hideLoading();
