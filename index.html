@@ -9889,12 +9889,13 @@
                 e.preventDefault();
                 const fd = new FormData(e.target);
 
+                const userInfo = this.app.auth ? this.app.auth.getUserInfo() : null;
                 const feedback = {
                     type: fd.get('type'),
                     email: fd.get('email') || '',
                     message: fd.get('message'),
                     timestamp: new Date().toISOString(),
-                    userAgent: navigator.userAgent
+                    userId: userInfo?.userId || null
                 };
 
                 try {
@@ -11288,7 +11289,8 @@
                                 type: 'drug_request',
                                 email: email,
                                 message: 'Запрос на добавление препарата: ' + drugName,
-                                timestamp: new Date().toISOString()
+                                timestamp: new Date().toISOString(),
+                                userId: this.auth ? this.auth.getUserInfo()?.userId || null : null
                             })
                         });
 
