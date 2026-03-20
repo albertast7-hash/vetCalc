@@ -10829,7 +10829,15 @@
                         localStorage.setItem('vethelper_trial_pending', 'true');
                         this.app.showToast('Заявка отправлена! Дождитесь одобрения.');
                         this.closeTrialRequestModal();
-                        this.render();
+                        // Обновляем блок подписки для отображения кнопки активации
+                        // Используем requestAnimationFrame для гарантии что модалка удалена
+                        requestAnimationFrame(() => {
+                            const container = document.getElementById('accountContent');
+                            if (container) {
+                                container.innerHTML = this.renderContent();
+                                this.initEvents();
+                            }
+                        });
                     } else {
                         this.app.showToast(data.error || 'Ошибка отправки заявки', 'error');
                     }
