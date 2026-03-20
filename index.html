@@ -7312,8 +7312,8 @@
             <a href="#" onclick="document.getElementById('ofertaModal').style.display='block';return false" style="color:#94a3b8;text-decoration:underline;margin:0 8px">Оферта</a>
             <a href="mailto:bedopadvet@gmail.com" style="color:#94a3b8;text-decoration:underline;margin:0 8px">Контакты</a>
         </div>
-        <div>Самозанятая Подобед Е.В. · ИНН 774343286349</div>
-        <div style="margin-top:4px;opacity:0.7">© 2026 VetHelper</div>
+        <div></div>Подобед Е.В. · ИНН 774343286349</div>
+        <div style="margin-top:4px;opacity:0.7">© 2026 Подобед продакшн</div>
     </footer>
 
 
@@ -10503,7 +10503,7 @@
                                     <li style="padding:4px 0">✓ Поиск по базе ветеринарных препаратов</li>
                                     <li style="padding:4px 0">✓ История расчётов</li>
                                 </ul>
-                                <div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:var(--sp-xs)">Доступ открывается сразу после оплаты. Подписка продлевается автоматически.</div>
+                                <div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:var(--sp-xs)">Доступ открывается сразу после оплаты.</div>
                             </div>
 
                             ${status !== 'active' ? `
@@ -10884,7 +10884,7 @@
                             this.app.showToast('Заявка на пробный период отклонена', 'error');
                             localStorage.removeItem('vethelper_trial_pending');
                             localStorage.setItem('vethelper_trial_used', 'true');
-                            this.render();
+                            { const c = document.getElementById('accountContent'); if (c) { c.innerHTML = this.renderContent(); this.initEvents(); } }
                             break;
                         case 'activated':
                             localStorage.setItem('vethelper_token', data.token);
@@ -10896,7 +10896,7 @@
                         case 'no_request':
                             this.app.showToast('Заявка не найдена. Отправьте заявку.', 'error');
                             localStorage.removeItem('vethelper_trial_pending');
-                            this.render();
+                            { const c = document.getElementById('accountContent'); if (c) { c.innerHTML = this.renderContent(); this.initEvents(); } }
                             break;
                         default:
                             this.app.showToast(data.message || 'Ошибка проверки', 'error');
