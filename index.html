@@ -8010,6 +8010,7 @@
                 this.tokenKey = 'vethelper_token';
                 this.deviceKey = 'vethelper_device_id';
                 this.authURL = 'https://api.vetpodobed.pro/webhook/auth';
+                this.resetURL = 'https://api.vetpodobed.pro/webhook/password-reset';
             }
 
             /** Генерация device fingerprint */
@@ -8160,10 +8161,10 @@
             async requestReset(email) {
                 let response;
                 try {
-                    response = await fetch(this.authURL, {
+                    response = await fetch(this.resetURL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'request-reset', email, password: 'reset', deviceId: 'reset' })
+                        body: JSON.stringify({ action: 'request-reset', email })
                     });
                 } catch {
                     throw new Error('Нет соединения с сервером');
@@ -8177,10 +8178,10 @@
             async resetPassword(email, code, newPassword) {
                 let response;
                 try {
-                    response = await fetch(this.authURL, {
+                    response = await fetch(this.resetURL, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ action: 'reset-password', email, code, newPassword, password: 'reset', deviceId: 'reset' })
+                        body: JSON.stringify({ action: 'reset-password', email, code, newPassword })
                     });
                 } catch {
                     throw new Error('Нет соединения с сервером');
