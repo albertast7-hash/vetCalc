@@ -2577,265 +2577,405 @@
             flex-shrink: 0;
         }
 
-        /* Subscription Card — Premium Glass Effect */
-        .subscription-card {
+        /* Collapsible sections */
+        .account-section-toggle {
+            cursor: pointer;
+            user-select: none;
+            justify-content: space-between;
+            margin-bottom: 0;
+        }
+        .account-section-arrow {
+            font-size: 12px;
+            color: var(--accent);
+            transition: transform 0.3s ease;
+        }
+        .account-section.expanded .account-section-arrow {
+            transform: rotate(180deg);
+        }
+        .account-section-body {
+            display: none;
+            margin-top: var(--sp-md);
+        }
+        .account-section.expanded .account-section-body {
+            display: block;
+        }
+
+        /* ===== Subscription Card v2 — Fire Animation ===== */
+        .sub-card {
             border-radius: var(--r-lg);
-            padding: var(--sp-xl);
             position: relative;
             overflow: hidden;
-            background: var(--bg-card);
             border: 1px solid var(--border);
+            transition: all 0.5s var(--ease-out);
         }
 
-        .subscription-card--active {
-            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+        .sub-card--active {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #f0fdf4 100%);
             border-color: #86efac;
+            box-shadow: 0 0 0 1px rgba(34, 197, 94, 0.1), 0 8px 32px rgba(34, 197, 94, 0.12);
         }
-
-        .subscription-card--active::before {
+        .sub-card--active::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(34, 197, 94, 0.1) 0%, transparent 50%);
+            background: linear-gradient(135deg, rgba(34, 197, 94, 0.08) 0%, transparent 60%);
             pointer-events: none;
         }
 
-        .subscription-card--expired {
+        .sub-card--expired {
             background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
             border-color: #fca5a5;
+            box-shadow: 0 8px 32px rgba(239, 68, 68, 0.08);
         }
-
-        .subscription-card--expired::before {
+        .sub-card--expired::before {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(135deg, rgba(239, 68, 68, 0.1) 0%, transparent 50%);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.06) 0%, transparent 60%);
             pointer-events: none;
         }
 
-        .subscription-card--inactive {
+        .sub-card--inactive {
             background: var(--bg-card);
             border-color: var(--border);
         }
 
-        .subscription-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            margin-bottom: var(--sp-md);
+        /* Crown decoration */
+        .sub-crown {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 40px;
+            height: 40px;
+            transform: rotate(12deg);
+            opacity: 0.15;
+            z-index: 0;
+        }
+        .sub-card--active .sub-crown { color: #22c55e; opacity: 0.2; }
+        .sub-card--expired .sub-crown { color: #ef4444; opacity: 0.15; }
+        .sub-card--inactive .sub-crown { color: var(--text-muted); opacity: 0.1; }
+
+        /* Card content */
+        .sub-content {
+            padding: 28px 24px 20px;
             position: relative;
             z-index: 1;
         }
 
-        .subscription-status {
-            display: flex;
+        /* Badge */
+        .sub-badge {
+            display: inline-flex;
             align-items: center;
-            gap: var(--sp-xs);
-        }
-
-        .subscription-status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            flex-shrink: 0;
-            animation: pulse-dot 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.7; transform: scale(1.1); }
-        }
-
-        .subscription-card--active .subscription-status-dot {
-            background: #22c55e;
-            box-shadow: 0 0 12px rgba(34, 197, 94, 0.6);
-        }
-
-        .subscription-card--expired .subscription-status-dot {
-            background: #ef4444;
-            box-shadow: 0 0 12px rgba(239, 68, 68, 0.6);
-            animation: none;
-        }
-
-        .subscription-card--inactive .subscription-status-dot {
-            background: #94a3b8;
-            animation: none;
-        }
-
-        .subscription-status-text {
-            font-size: var(--fs-sm);
-            font-weight: 600;
-            color: var(--text-primary);
-        }
-
-        .subscription-badge {
             font-size: var(--fs-2xs);
-            font-weight: 600;
-            padding: 4px 10px;
-            border-radius: var(--r-full);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-
-        .subscription-card--active .subscription-badge {
-            background: rgba(34, 197, 94, 0.15);
-            color: #16a34a;
-        }
-
-        .subscription-card--expired .subscription-badge {
-            background: rgba(239, 68, 68, 0.15);
-            color: #dc2626;
-        }
-
-        .subscription-card--inactive .subscription-badge {
-            background: var(--bg-elevated);
-            color: var(--text-muted);
-        }
-
-        .subscription-body {
-            position: relative;
-            z-index: 1;
-        }
-
-        .subscription-expires {
-            font-size: var(--fs-sm);
-            color: var(--text-secondary);
-            margin-bottom: var(--sp-lg);
-        }
-
-        /* Fire Animation */
-        .subscription-animation {
-            display: flex;
-            justify-content: center;
-            margin: var(--sp-lg) 0;
-        }
-
-        .mo-fire {
-            width: 80px;
-            height: auto;
-            position: relative;
-        }
-
-        .mo-fire svg {
-            width: 100%;
-            height: auto;
-            position: relative;
-        }
-
-        .flame {
-            animation-name: flamefly;
-            animation-duration: 2s;
-            animation-timing-function: linear;
-            animation-iteration-count: infinite;
-            opacity: 0;
-            transform-origin: 50% 50% 0;
-        }
-
-        .flame.one {
-            animation-delay: 1s;
-            animation-duration: 3s;
-        }
-
-        .flame.two {
-            animation-duration: 5s;
-            animation-delay: 1s;
-        }
-
-        .flame-main {
-            animation-name: flameWobble;
-            animation-duration: 3s;
-            animation-timing-function: linear;
-            animation-iteration-count: infinite;
-        }
-
-        .flame-main.one {
-            animation-duration: 4s;
-            animation-delay: 1s;
-        }
-
-        .flame-main.two {
-            animation-duration: 3s;
-            animation-delay: 2s;
-        }
-
-        .flame-main.three {
-            animation-duration: 2.1s;
-            animation-delay: 3s;
-        }
-
-        .flame-main.four {
-            animation-duration: 3.2s;
-            animation-delay: 4s;
-        }
-
-        .flame-main.five {
-            animation-duration: 2.5s;
-            animation-delay: 5s;
-        }
-
-        @keyframes flameWobble {
-            50% {
-                transform: scale(1, 1.2) translate(0, -10px) rotate(-2deg);
-            }
-        }
-
-        @keyframes flamefly {
-            0% {
-                transform: translate(0) rotate(180deg);
-            }
-            50% {
-                opacity: 1;
-            }
-            100% {
-                transform: translate(-10px, -40px) rotate(180deg);
-                opacity: 0;
-            }
-        }
-
-        .subscription-price-row {
-            display: flex;
-            align-items: baseline;
-            gap: var(--sp-xs);
-            margin-bottom: var(--sp-lg);
-        }
-
-        .subscription-price {
-            font-size: var(--fs-3xl);
             font-weight: 700;
-            color: var(--text-primary);
-            line-height: 1;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 4px 12px;
+            border-radius: var(--r-full);
+            margin-bottom: 24px;
         }
-
-        .subscription-price-period {
-            font-size: var(--fs-sm);
+        .sub-card--active .sub-badge {
+            color: #16a34a;
+            background: rgba(34, 197, 94, 0.12);
+            border: 1px solid rgba(34, 197, 94, 0.2);
+        }
+        .sub-card--expired .sub-badge {
+            color: #dc2626;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+        }
+        .sub-card--inactive .sub-badge {
             color: var(--text-muted);
+            background: var(--bg-elevated);
+            border: 1px solid var(--border);
         }
 
-        .subscription-features {
+        /* Fire illustration */
+        .sub-fire-container {
             display: flex;
             flex-direction: column;
-            gap: var(--sp-xs);
-            margin-bottom: var(--sp-lg);
+            align-items: center;
+            padding: 16px 0;
+            will-change: transform, opacity;
+            animation: subZoomIn 0.6s var(--ease-out) forwards;
         }
 
-        .subscription-feature {
+        @keyframes subZoomIn {
+            0% { transform: scale(0.3) translateY(16px); opacity: 0; }
+            50% { transform: scale(1.08) translateY(-4px); opacity: 0.8; }
+            100% { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .sub-fire-wrapper {
+            position: relative;
+            transition: transform 0.4s var(--ease-out);
+        }
+        .sub-card:hover .sub-fire-wrapper { transform: scale(1.08); }
+
+        .sub-fire-glow {
+            position: absolute;
+            inset: -16px;
+            border-radius: 50%;
+            filter: blur(24px);
+            transition: all 0.4s;
+        }
+        .sub-card--active .sub-fire-glow { background: #f97316; opacity: 0.15; }
+        .sub-card:hover .sub-fire-glow { opacity: 0.25; }
+        .sub-card--expired .sub-fire-glow { background: #ef4444; opacity: 0.08; }
+        .sub-card--inactive .sub-fire-glow { background: #94a3b8; opacity: 0.06; }
+
+        .sub-fire-svg {
+            position: relative;
+            z-index: 1;
+            width: 96px;
+            height: 96px;
+            filter: drop-shadow(0 8px 16px rgba(0,0,0,0.15));
+        }
+        .sub-card--inactive .sub-fire-svg { opacity: 0.35; }
+        .sub-card--expired .sub-fire-svg { opacity: 0.5; }
+
+        /* Flame pulse */
+        .sub-flame-outer { animation: subFlamePulse 2s ease-in-out infinite; }
+        .sub-flame-inner { animation: subFlamePulse 2s ease-in-out infinite 0.5s; }
+
+        .sub-card--expired .sub-flame-outer { animation: subFlamePulse 3s ease-in-out infinite; }
+        .sub-card--expired .sub-flame-inner { animation: subFlamePulse 3s ease-in-out infinite 0.5s; }
+
+        .sub-card--inactive .sub-flame-outer { animation: subFlamePulse 4s ease-in-out infinite; }
+        .sub-card--inactive .sub-flame-inner { animation: subFlamePulse 4s ease-in-out infinite 0.5s; }
+
+        @keyframes subFlamePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(0.97); }
+        }
+
+        .sub-fire-title {
+            margin-top: 20px;
+            font-size: var(--fs-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.02em;
+            text-align: center;
+        }
+        .sub-card--inactive .sub-fire-title,
+        .sub-card--expired .sub-fire-title { color: var(--text-muted); }
+
+        .sub-fire-subtitle {
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        /* Divider */
+        .sub-divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--border), transparent);
+            margin: 20px 0;
+        }
+
+        /* Status row */
+        .sub-status-row {
             display: flex;
             align-items: center;
-            gap: var(--sp-xs);
-            font-size: var(--fs-sm);
-            color: var(--text-secondary);
+            justify-content: center;
         }
 
-        .subscription-feature svg {
-            width: 14px;
-            height: 14px;
-            color: #22c55e;
+        .sub-status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: var(--fs-xs);
+        }
+
+        .sub-dot-wrapper {
+            position: relative;
+            width: 10px;
+            height: 10px;
+        }
+
+        .sub-dot-ping {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+        .sub-card--active .sub-dot-ping {
+            background: #22c55e;
+            animation: subPing 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
+        }
+        .sub-card--expired .sub-dot-ping,
+        .sub-card--inactive .sub-dot-ping { display: none; }
+
+        @keyframes subPing {
+            75%, 100% { transform: scale(2.2); opacity: 0; }
+        }
+
+        .sub-dot {
+            position: relative;
+            display: block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        .sub-card--active .sub-dot { background: #22c55e; box-shadow: 0 0 8px rgba(34, 197, 94, 0.5); }
+        .sub-card--expired .sub-dot { background: #ef4444; }
+        .sub-card--inactive .sub-dot { background: #94a3b8; }
+
+        .sub-status-text {
+            font-size: var(--fs-xs);
+            font-weight: 600;
+        }
+        .sub-card--active .sub-status-text { color: #16a34a; }
+        .sub-card--expired .sub-status-text { color: #dc2626; }
+        .sub-card--inactive .sub-status-text { color: var(--text-muted); }
+
+        .sub-expires {
+            font-size: var(--fs-xs);
+            color: var(--text-muted);
+            white-space: nowrap;
+        }
+
+        /* Action footer */
+        .sub-action {
+            padding: 16px 24px;
+            border-top: 1px solid var(--border-subtle);
+        }
+        .sub-action-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: var(--r-md);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s var(--ease-out);
+            position: relative;
+            overflow: hidden;
+        }
+        .sub-action-btn::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .sub-action-btn:hover::before { opacity: 1; }
+        .sub-action-btn:active { transform: scale(0.97); }
+
+        .sub-card--expired .sub-action-btn,
+        .sub-card--inactive .sub-action-btn {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+            color: #fff;
+            box-shadow: 0 6px 20px rgba(37, 99, 235, 0.25);
+        }
+        .sub-card--expired .sub-action-btn:hover,
+        .sub-card--inactive .sub-action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 28px rgba(37, 99, 235, 0.35);
+        }
+
+        .sub-action-btn svg {
+            width: 16px;
+            height: 16px;
             flex-shrink: 0;
         }
 
-        .subscription-card--inactive .subscription-feature svg,
-        .subscription-card--expired .subscription-feature svg {
+        /* Plan info block */
+        .sub-plan-info {
+            background: var(--bg-elevated);
+            border-radius: var(--r-md);
+            padding: var(--sp-md);
+            margin-top: 16px;
+            border: 1px solid var(--border);
+        }
+        .sub-plan-title {
+            font-weight: 700;
+            font-size: var(--fs-lg);
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        .sub-plan-features {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .sub-plan-features li {
+            padding: 3px 0;
+            font-size: var(--fs-sm);
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .sub-plan-features li::before {
+            content: '';
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 16 16' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M13.3 4.3L6 11.6L2.7 8.3' stroke='%2322c55e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/contain no-repeat;
+        }
+        /* Plan info now lives outside the card, inside account-section */
+        .sub-plan-note {
+            font-size: var(--fs-xs);
             color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Mobile compact subscription card */
+        @media (max-width: 480px) {
+            .sub-content {
+                padding: 20px 16px 16px;
+            }
+            .sub-badge {
+                margin-bottom: 12px;
+            }
+            .sub-fire-container {
+                padding: 8px 0;
+            }
+            .sub-fire-svg {
+                width: 72px;
+                height: 72px;
+            }
+            .sub-fire-title {
+                margin-top: 12px;
+                font-size: var(--fs-base);
+            }
+            .sub-fire-subtitle {
+                font-size: var(--fs-xs);
+            }
+            .sub-divider {
+                margin: 12px 0;
+            }
+            .sub-crown {
+                width: 32px;
+                height: 32px;
+                top: 12px;
+                right: 12px;
+            }
+            .sub-action {
+                padding: 12px 16px;
+            }
+            .sub-plan-features {
+                display: none;
+            }
+            .sub-plan-info {
+                text-align: center;
+                padding: var(--sp-sm);
+                margin-top: 12px;
+            }
+            .sub-plan-title {
+                font-size: var(--fs-sm);
+                margin-bottom: 4px;
+            }
+            .sub-plan-note {
+                font-size: var(--fs-2xs);
+            }
         }
 
         .btn-pay {
@@ -7006,6 +7146,27 @@
 
 <body>
 
+    <!-- SVG Defs for subscription fire animation -->
+    <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+        <defs>
+            <linearGradient id="flameActive" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fbbf24"/>
+                <stop offset="50%" stop-color="#f59e0b"/>
+                <stop offset="100%" stop-color="#ef4444"/>
+            </linearGradient>
+            <linearGradient id="flameExpired" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#fca5a5"/>
+                <stop offset="50%" stop-color="#ef4444"/>
+                <stop offset="100%" stop-color="#b91c1c"/>
+            </linearGradient>
+            <linearGradient id="flameInactive" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#cbd5e1"/>
+                <stop offset="50%" stop-color="#94a3b8"/>
+                <stop offset="100%" stop-color="#64748b"/>
+            </linearGradient>
+        </defs>
+    </svg>
+
     <!-- Offline Banner -->
     <div id="offlineBanner" class="offline-banner">
         ⚠️ Нет подключения к интернету. Для расчётов необходима сеть.
@@ -7274,7 +7435,7 @@
                 <p>3.4.1. Копировать, распространять, изменять любую информацию, размещенную на Сайте, без предварительного согласия Администрации Сайта.</p>
 
                 <h3 style="margin-top:var(--sp-lg)">4. Платные услуги</h3>
-                <p>4.1. Администрация Сайта вправе предоставлять Пользователю платные услуги. Стоимость подписки «VetHelper Premium»: <strong>299 (двести девяносто девять) рублей в месяц</strong>. Информация о порядке предоставления услуг размещается в соответствующих разделах Сайта.</p>
+                <p>4.1. Администрация Сайта вправе предоставлять Пользователю платные услуги. Стоимость подписки «VetHelper: <strong>299 (двести девяносто девять) рублей в месяц</strong>. Информация о порядке предоставления услуг размещается в соответствующих разделах Сайта.</p>
                 <p>4.2. Оплата услуг производится Пользователем в порядке, указанном на Сайте. Моментом оплаты считается поступление денежных средств на счет Администрации.</p>
                 <p>4.3. Доступ к платным функциям открывается немедленно после подтверждения оплаты.</p>
                 <p>4.4. Подписка продлевается автоматически. Пользователь может отменить автопродление в личном кабинете.</p>
@@ -7898,7 +8059,7 @@
                         </div>
                         <div class="form-group">
                             <label for="inf_dehyd">Дегидратация (%)</label>
-                            <input type="number" id="inf_dehyd" name="dehydration" min="0" max="15" step="0.5" placeholder="7" required>
+                            <input type="number" id="inf_dehyd" name="dehydration" min="0" max="15" step="0.5" placeholder="0–15" required>
                         </div>
                         <div class="form-group">
                             <label for="inf_hours">Время (ч) <span class="optional">опционально</span></label>
@@ -10393,7 +10554,6 @@
 
             renderContent() {
                 return `
-                ${this.renderSessionInfo()}
                 ${this.renderSubscription()}
                 ${this.renderProfile()}
                 ${this.renderDevices()}
@@ -10456,8 +10616,12 @@
                         expiresText = '';
                 }
 
-                // Кнопка оплаты скрыта при активной подписке
-                const showAnimation = status === 'active';
+                // Flame gradient & colors per status
+                const flameGradients = { active: 'flameActive', expired: 'flameExpired', inactive: 'flameInactive' };
+                const flameInnerColors = { active: '#fbbf24', expired: '#fca5a5', inactive: '#94a3b8' };
+                const fireTitle = { active: 'Активная подписка', expired: 'Подписка истекла', inactive: 'Подписка не оформлена' };
+                const fireSubtitle = { active: 'Все функции доступны без ограничений', expired: 'Продлите для доступа ко всем функциям', inactive: 'Оформите подписку для доступа ко всем функциям' };
+                const actionLabel = status === 'active' ? 'Управлять подпиской' : (status === 'expired' ? 'Продлить подписку' : 'Оформить подписку');
 
                 return `
                 <div class="account-section account-section--subscription">
@@ -10465,77 +10629,85 @@
                         <svg viewBox="0 0 24 24" fill="none"><path d="M12 2L3 7V17L12 22L21 17V7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
                         Подписка
                     </div>
-                    <div class="subscription-card subscription-card--${statusClass}">
-                        <div class="subscription-header">
-                            <div class="subscription-status">
-                                <span class="subscription-status-dot"></span>
-                                <span class="subscription-status-text">${statusText}</span>
-                            </div>
-                            <span class="subscription-badge">${badgeText}</span>
-                        </div>
-                        <div class="subscription-body">
-                            ${expiresText ? `<div class="subscription-expires">${expiresText}</div>` : ''}
-                            
-                            ${showAnimation ? `
-                            <div class="subscription-animation">
-                                <div class="mo-fire">
-                                    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="125px" height="189.864px" viewBox="0 0 125 189.864" enable-background="new 0 0 125 189.864" xml:space="preserve">
-                                        <path class="flame-main" fill="#F36E21" d="M76.553,186.09c0,0-10.178-2.976-15.325-8.226s-9.278-16.82-9.278-16.82s-0.241-6.647-4.136-18.465 c0,0,3.357,4.969,5.103,9.938c0,0-5.305-21.086,1.712-30.418c7.017-9.333,0.571-35.654-2.25-37.534c0,0,13.07,5.64,19.875,47.54 c6.806,41.899,16.831,45.301,6.088,53.985"/>
-                                        <path class="flame-main one" fill="#F6891F" d="M61.693,122.257c4.117-15.4,12.097-14.487-11.589-60.872c0,0,32.016,10.223,52.601,63.123 c20.585,52.899-19.848,61.045-19.643,61.582c0.206,0.537-19.401-0.269-14.835-18.532S57.576,137.656,61.693,122.257z"/>
-                                        <path class="flame-main two" fill="#FFD04A" d="M81.657,79.192c0,0,11.549,24.845,3.626,40.02c-7.924,15.175-21.126,41.899-0.425,64.998 C84.858,184.21,125.705,150.905,81.657,79.192z"/>
-                                        <path class="flame-main three" fill="#FDBA16" d="M99.92,101.754c0,0-23.208,47.027-12.043,80.072c0,0,32.741-16.073,20.108-45.79 C95.354,106.319,99.92,114.108,99.92,101.754z"/>
-                                        <path class="flame-main four" fill="#F36E21" d="M103.143,105.917c0,0,8.927,30.753-1.043,46.868c-9.969,16.115-14.799,29.041-14.799,29.041 S134.387,164.603,103.143,105.917z"/>
-                                        <path class="flame-main five" fill="#FDBA16" d="M62.049,104.171c0,0-15.645,67.588,10.529,77.655C98.753,191.894,69.033,130.761,62.049,104.171z"/>
-                                        <path class="flame" fill="#F36E21" d="M101.011,112.926c0,0,8.973,10.519,4.556,16.543C99.37,129.735,106.752,117.406,101.011,112.926z"/>
-                                        <path class="flame one" fill="#F36E21" d="M55.592,126.854c0,0-3.819,13.29,2.699,16.945C64.038,141.48,55.907,132.263,55.592,126.854z"/>
-                                        <path class="flame two" fill="#F36E21" d="M54.918,104.595c0,0-3.959,6.109-1.24,8.949C56.93,113.256,52.228,107.329,54.918,104.595z"/>
+                    <div class="sub-card sub-card--${statusClass}">
+                        <!-- Crown -->
+                        <svg class="sub-crown" viewBox="0 0 24 24" fill="currentColor"><path d="M5 16L3 5L8.5 10L12 4L15.5 10L21 5L19 16H5ZM19 19C19 19.5523 18.5523 20 18 20H6C5.44772 20 5 19.5523 5 19V18H19V19Z"/></svg>
+
+                        <div class="sub-content">
+                            <!-- Badge -->
+                            <div class="sub-badge">${badgeText}</div>
+
+                            <!-- Fire illustration -->
+                            <div class="sub-fire-container">
+                                <div class="sub-fire-wrapper">
+                                    <div class="sub-fire-glow"></div>
+                                    <svg class="sub-fire-svg" viewBox="0 0 100 100">
+                                        <path class="sub-flame-outer"
+                                            d="M50 95C30 95 15 80 15 60C15 45 35 15 50 5C65 15 85 45 85 60C85 80 70 95 50 95Z"
+                                            fill="url(#${flameGradients[statusClass]})"/>
+                                        <path class="sub-flame-inner"
+                                            d="M50 90C40 90 30 80 30 65C30 55 45 35 50 30C55 35 70 55 70 65C70 80 60 90 50 90Z"
+                                            fill="${flameInnerColors[statusClass]}" opacity="0.4"/>
                                     </svg>
                                 </div>
-                            </div>
-                            ` : ''}
-                            
-                            <div class="subscription-plan-info" style="background:var(--bg-elevated);border-radius:var(--r-md);padding:var(--sp-md);margin-bottom:var(--sp-md);border:1px solid var(--border)">
-                                <div style="font-weight:700;font-size:var(--fs-lg);color:var(--text-primary);margin-bottom:var(--sp-xs)">VetHelper Premium — 299 ₽/мес</div>
-                                <ul style="list-style:none;padding:0;margin:0;font-size:var(--fs-sm);color:var(--text-secondary)">
-                                    <li style="padding:4px 0">✓ Калькулятор инфузий с учётом клинических параметров</li>
-                                    <li style="padding:4px 0">✓ Подкожные инфузии, CRI, ДКА</li>
-                                    <li style="padding:4px 0">✓ Калькулятор дозировок препаратов</li>
-                                    <li style="padding:4px 0">✓ Поиск по базе ветеринарных препаратов</li>
-                                    <li style="padding:4px 0">✓ История расчётов</li>
-                                </ul>
-                                <div style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:var(--sp-xs)">Доступ открывается сразу после оплаты.</div>
+                                <h3 class="sub-fire-title">${fireTitle[statusClass]}</h3>
+                                <p class="sub-fire-subtitle">${fireSubtitle[statusClass]}</p>
                             </div>
 
-                            ${status !== 'active' ? `
-                            <button class="btn-pay" id="payBtn">
-                                <svg viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="20" height="14" rx="2" stroke="currentColor" stroke-width="2"/><path d="M2 10H22" stroke="currentColor" stroke-width="2"/></svg>
-                                Оформить подписку
-                            </button>
-                            ` : ''}
-                            
-                            ${status === 'inactive' && trialPending ? `
-                            <div class="trial-pending-block" style="margin-top:var(--sp-md);background:var(--bg-elevated);border-radius:var(--r-md);padding:var(--sp-md);border:1px solid var(--border)">
-                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
-                                    <span style="background:rgba(234,179,8,0.15);color:#eab308;padding:4px 10px;border-radius:var(--r-sm);font-size:var(--fs-xs);font-weight:600">⏳ На рассмотрении</span>
+                            <!-- Divider -->
+                            <div class="sub-divider"></div>
+
+                            <!-- Status row -->
+                            <div class="sub-status-row">
+                                <div class="sub-status-indicator">
+                                    <div class="sub-dot-wrapper">
+                                        <span class="sub-dot-ping"></span>
+                                        <span class="sub-dot"></span>
+                                    </div>
+                                    <span class="sub-status-text">${expiresText || statusText}</span>
                                 </div>
-                                <p style="margin:0 0 var(--sp-sm) 0;font-size:var(--fs-sm);color:var(--text-secondary)">Заявка отправлена. После одобрения нажмите кнопку для активации.</p>
-                                <button class="trial-activate-btn" onclick="app.calculators.account.handleTrialActivate()" style="background:#22c55e;color:#fff;width:100%;padding:var(--sp-md);border-radius:var(--r-md);border:none;cursor:pointer;font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--sp-sm)">
-                                    <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                    Активировать пробный период (1 час)
-                                </button>
                             </div>
-                            ` : ''}
-                            
-                            ${status === 'inactive' && !trialPending && !trialUsed ? `
-                            <button class="btn-trial" id="trialBtn" style="margin-top:var(--sp-sm);background:var(--accent);color:#fff;width:100%;padding:var(--sp-md);border-radius:var(--r-md);border:none;cursor:pointer;font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--sp-sm)">
-                                <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                                Запросить пробный период (1 час)
-                            </button>
-                            ` : ''}
-                            
-                            ${this.isAdmin ? this.renderAdminPanel() : ''}
+
                         </div>
+
+                        ${status !== 'active' ? `
+                        <!-- Action button -->
+                        <div class="sub-action">
+                            <button class="sub-action-btn" id="payBtn">
+                                ${actionLabel}
+                                <svg viewBox="0 0 24 24" fill="none" width="16" height="16"><polyline points="9 18 15 12 9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            </button>
+                        </div>
+                        ` : ''}
                     </div>
+
+                    <!-- Plan info (outside colored card) -->
+                    <div class="sub-plan-info">
+                        <div class="sub-plan-title">VetHelper — 299 ₽/мес</div>
+                        ${status !== 'active' ? '<div class="sub-plan-note">Доступ открывается сразу после оплаты.</div>' : ''}
+                    </div>
+
+                    ${status === 'inactive' && trialPending ? `
+                    <div class="trial-pending-block" style="margin-top:var(--sp-md);background:var(--bg-elevated);border-radius:var(--r-md);padding:var(--sp-md);border:1px solid var(--border)">
+                        <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+                            <span style="background:rgba(234,179,8,0.15);color:#eab308;padding:4px 10px;border-radius:var(--r-sm);font-size:var(--fs-xs);font-weight:600">⏳ На рассмотрении</span>
+                        </div>
+                        <p style="margin:0 0 var(--sp-sm) 0;font-size:var(--fs-sm);color:var(--text-secondary)">Заявка отправлена. После одобрения нажмите кнопку для активации.</p>
+                        <button class="trial-activate-btn" onclick="app.calculators.account.handleTrialActivate()" style="background:#22c55e;color:#fff;width:100%;padding:var(--sp-md);border-radius:var(--r-md);border:none;cursor:pointer;font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--sp-sm)">
+                            <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M5 12l5 5L20 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Активировать пробный период (1 час)
+                        </button>
+                    </div>
+                    ` : ''}
+
+                    ${status === 'inactive' && !trialPending && !trialUsed ? `
+                    <button class="btn-trial" id="trialBtn" style="margin-top:var(--sp-sm);background:var(--accent);color:#fff;width:100%;padding:var(--sp-md);border-radius:var(--r-md);border:none;cursor:pointer;font-size:var(--fs-sm);font-weight:600;display:flex;align-items:center;justify-content:center;gap:var(--sp-sm)">
+                        <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        Запросить пробный период (1 час)
+                    </button>
+                    ` : ''}
+
+                    ${this.isAdmin ? this.renderAdminPanel() : ''}
                 </div>
             `;
             }
@@ -10656,15 +10828,20 @@
 
                 return `
                 <div class="account-section account-section--devices">
-                    <div class="account-section-title">
-                        <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
-                        Устройства
+                    <div class="account-section-title account-section-toggle" onclick="this.parentElement.classList.toggle('expanded')">
+                        <span style="display:flex;align-items:center;gap:8px">
+                            <svg viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="18" r="1" fill="currentColor"/></svg>
+                            Устройства
+                        </span>
+                        <span class="account-section-arrow">▼</span>
                     </div>
-                    <div class="devices-list">
-                        ${content}
-                    </div>
-                    <div class="devices-limit">
-                        Максимум 2 устройства на аккаунт. При превышении — старое устройство отключается автоматически.
+                    <div class="account-section-body">
+                        <div class="devices-list">
+                            ${content}
+                        </div>
+                        <div class="devices-limit">
+                            Максимум 2 устройства на аккаунт. При превышении — старое устройство отключается автоматически.
+                        </div>
                     </div>
                 </div>
             `;
@@ -10709,11 +10886,16 @@
 
                 return `
                 <div class="account-section account-section--payments">
-                    <div class="account-section-title">
-                        <svg viewBox="0 0 24 24" fill="none"><path d="M12 2V22M17 5H9.5C8.57 5 7.68 5.37 7.02 6.02C6.37 6.68 6 7.57 6 8.5C6 9.43 6.37 10.32 7.02 10.98C7.68 11.63 8.57 12 9.5 12H14.5C15.43 12 16.32 12.37 16.98 13.02C17.63 13.68 18 14.57 18 15.5C18 16.43 17.63 17.32 16.98 17.98C16.32 18.63 15.43 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                        История платежей
+                    <div class="account-section-title account-section-toggle" onclick="this.parentElement.classList.toggle('expanded')">
+                        <span style="display:flex;align-items:center;gap:8px">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M12 2V22M17 5H9.5C8.57 5 7.68 5.37 7.02 6.02C6.37 6.68 6 7.57 6 8.5C6 9.43 6.37 10.32 7.02 10.98C7.68 11.63 8.57 12 9.5 12H14.5C15.43 12 16.32 12.37 16.98 13.02C17.63 13.68 18 14.57 18 15.5C18 16.43 17.63 17.32 16.98 17.98C16.32 18.63 15.43 19 14.5 19H6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            История платежей
+                        </span>
+                        <span class="account-section-arrow">▼</span>
                     </div>
-                    ${tableContent}
+                    <div class="account-section-body">
+                        ${tableContent}
+                    </div>
                 </div>
             `;
             }
