@@ -2579,12 +2579,14 @@
                     "subscription subscription"
                     "profile devices"
                     "payments payments"
+                    "install install"
                     "logout logout";
             }
             .account-section--subscription { grid-area: subscription; }
             .account-section--profile { grid-area: profile; }
             .account-section--devices { grid-area: devices; }
             .account-section--payments { grid-area: payments; }
+            .account-section--install { grid-area: install; }
             .account-section--logout { grid-area: logout; }
         }
 
@@ -2641,6 +2643,97 @@
         }
         .account-section.expanded .account-section-body {
             display: block;
+        }
+
+        /* ===== Install App Section ===== */
+        .install-platforms {
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-lg);
+        }
+        .install-platform {
+            background: var(--bg-secondary);
+            border-radius: var(--r-lg);
+            padding: var(--sp-lg);
+            border: 1px solid var(--border);
+        }
+        .install-platform-header {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-sm);
+            margin-bottom: var(--sp-md);
+            font-weight: 700;
+            font-size: var(--fs-md);
+            color: var(--text-primary);
+        }
+        .install-platform-header svg {
+            width: 28px;
+            height: 28px;
+            flex-shrink: 0;
+        }
+        .install-steps {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 var(--sp-md) 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-sm);
+        }
+        .install-steps li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--sp-sm);
+            font-size: var(--fs-sm);
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+        .install-step-num {
+            min-width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+        .btn-download-apk {
+            display: inline-flex;
+            align-items: center;
+            gap: var(--sp-sm);
+            background: #3ddc84;
+            color: #1a1a2e;
+            font-weight: 700;
+            font-size: var(--fs-sm);
+            padding: 12px 24px;
+            border-radius: var(--r-lg);
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: var(--t-base);
+            box-shadow: 0 4px 12px rgba(61, 220, 132, 0.3);
+        }
+        .btn-download-apk:hover {
+            background: #32cb75;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(61, 220, 132, 0.4);
+        }
+        .btn-download-apk svg {
+            width: 20px;
+            height: 20px;
+        }
+        .install-ios-note {
+            margin-top: var(--sp-md);
+            padding: var(--sp-md);
+            background: rgba(59, 130, 246, 0.08);
+            border-radius: var(--r-md);
+            border-left: 3px solid var(--accent);
+            font-size: var(--fs-xs);
+            color: var(--text-muted);
+            line-height: 1.6;
         }
 
         /* ===== Subscription Card v2 — Fire Animation ===== */
@@ -10766,6 +10859,7 @@
                 ${this.renderProfile()}
                 ${this.renderDevices()}
                 ${this.renderPayments()}
+                ${this.renderInstallApp()}
                 ${this.renderLogout()}
             `;
             }
@@ -11103,6 +11197,56 @@
                     </div>
                     <div class="account-section-body">
                         ${tableContent}
+                    </div>
+                </div>
+            `;
+            }
+
+            renderInstallApp() {
+                return `
+                <div class="account-section account-section--install">
+                    <div class="account-section-title account-section-toggle" onclick="this.parentElement.classList.toggle('expanded')">
+                        <span style="display:flex;align-items:center;gap:8px">
+                            <svg viewBox="0 0 24 24" fill="none"><path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                            Установить приложение
+                        </span>
+                        <span class="account-section-arrow">▼</span>
+                    </div>
+                    <div class="account-section-body">
+                        <div class="install-platforms">
+                            <div class="install-platform">
+                                <div class="install-platform-header">
+                                    <svg viewBox="0 0 24 24" fill="#3ddc84"><path d="M17.523 2.227l1.59-1.59a.5.5 0 00-.707-.707l-1.78 1.78A9.955 9.955 0 0012 0a9.955 9.955 0 00-4.626 1.71L5.594.13a.5.5 0 00-.707.707l1.59 1.59C3.838 4.387 2 7.641 2 11.5h20c0-3.859-1.838-7.113-4.477-9.273zM7 8a1 1 0 110-2 1 1 0 010 2zm10 0a1 1 0 110-2 1 1 0 010 2zM2 12v7a2 2 0 002 2h16a2 2 0 002-2v-7H2z"/></svg>
+                                    Android
+                                </div>
+                                <ol class="install-steps">
+                                    <li><span class="install-step-num">1</span> Нажмите кнопку «Скачать APK» ниже</li>
+                                    <li><span class="install-step-num">2</span> Откройте скачанный файл VetHelper.apk</li>
+                                    <li><span class="install-step-num">3</span> Разрешите установку из неизвестных источников, если система попросит</li>
+                                    <li><span class="install-step-num">4</span> Нажмите «Установить» — готово!</li>
+                                </ol>
+                                <a href="VetHelper.apk" download="VetHelper.apk" class="btn-download-apk">
+                                    <svg viewBox="0 0 24 24" fill="none"><path d="M21 15V19C21 20.1 20.1 21 19 21H5C3.9 21 3 20.1 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="7,10 12,15 17,10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    Скачать APK (2.5 МБ)
+                                </a>
+                            </div>
+
+                            <div class="install-platform">
+                                <div class="install-platform-header">
+                                    <svg viewBox="0 0 24 24" fill="#999"><path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/></svg>
+                                    iPhone / iPad
+                                </div>
+                                <ol class="install-steps">
+                                    <li><span class="install-step-num">1</span> Откройте <strong>vetpodobed.pro</strong> в Safari</li>
+                                    <li><span class="install-step-num">2</span> Нажмите кнопку «Поделиться» (квадрат со стрелкой вверх)</li>
+                                    <li><span class="install-step-num">3</span> Выберите «На экран Домой»</li>
+                                    <li><span class="install-step-num">4</span> Нажмите «Добавить» — иконка появится на рабочем столе</li>
+                                </ol>
+                                <div class="install-ios-note">
+                                    Приложение будет работать как обычное — с иконкой, полноэкранным режимом и офлайн-доступом. В ближайшем будущем планируется выпуск полноценного приложения для iOS в App Store.
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             `;
