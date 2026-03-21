@@ -2518,6 +2518,49 @@
             display: block;
         }
 
+        .auth-forgot-link {
+            display: block;
+            text-align: center;
+            margin-top: var(--sp-sm);
+            color: var(--accent);
+            font-size: var(--fs-xs);
+            text-decoration: none;
+            cursor: pointer;
+        }
+        .auth-forgot-link:hover { text-decoration: underline; }
+
+        .auth-code-input {
+            text-align: center;
+            font-size: 24px;
+            letter-spacing: 8px;
+            font-weight: 700;
+        }
+        .auth-timer {
+            text-align: center;
+            font-size: var(--fs-xs);
+            color: var(--text-muted);
+            margin-bottom: var(--sp-sm);
+        }
+        .auth-back-link {
+            display: block;
+            text-align: center;
+            margin-top: var(--sp-md);
+            color: var(--text-secondary);
+            font-size: var(--fs-xs);
+            cursor: pointer;
+            text-decoration: none;
+        }
+        .auth-back-link:hover { text-decoration: underline; }
+        .auth-success-msg {
+            background: rgba(34,197,94,0.1);
+            color: #16a34a;
+            padding: 8px 12px;
+            border-radius: var(--r-sm);
+            font-size: var(--fs-xs);
+            text-align: center;
+            margin-bottom: var(--sp-sm);
+        }
+
         /* =============================================
            Account Page v2 — Redesigned Личный кабинет
            Bento Grid Layout, Liquid Glass, Premium UI
@@ -8113,6 +8156,40 @@
                 return data;
             }
 
+            /** Запрос сброса пароля */
+            async requestReset(email) {
+                let response;
+                try {
+                    response = await fetch(this.authURL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'request-reset', email, password: 'reset', deviceId: 'reset' })
+                    });
+                } catch {
+                    throw new Error('Нет соединения с сервером');
+                }
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.error || 'Ошибка сервера');
+                return data;
+            }
+
+            /** Сброс пароля по коду */
+            async resetPassword(email, code, newPassword) {
+                let response;
+                try {
+                    response = await fetch(this.authURL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ action: 'reset-password', email, code, newPassword, password: 'reset', deviceId: 'reset' })
+                    });
+                } catch {
+                    throw new Error('Нет соединения с сервером');
+                }
+                const data = await response.json().catch(() => ({}));
+                if (!response.ok) throw new Error(data.error || 'Ошибка сервера');
+                return data;
+            }
+
             /** Получить данные пользователя из JWT */
             getUserInfo() {
                 const token = this.getToken();
@@ -12839,6 +12916,120 @@
                         }
                     });
                 }
+
+                // === Сброс пароля ===
+                const forgotLink = document.getElementById('forgotPasswordLink');
+                const backToLogin = document.getElementById('backToLoginLink');
+                const backToLogin2 = document.getElementById('backToLoginLink2');
+                const resetRequestForm = document.getElementById('resetRequestForm');
+                const resetConfirmForm = document.getElementById('resetConfirmForm');
+                let resetEmail = '';
+                let resetTimerInterval = null;
+
+                const showResetView = (formId) => {
+                    const tabs = document.querySelector('.auth-tabs');
+                    const allForms = document.querySelectorAll('.auth-form');
+                    allForms.forEach(f => f.classList.remove('active'));
+                    if (formId === 'login') {
+                        tabs.style.display = '';
+                        loginForm.classList.add('active');
+                    } else {
+                        tabs.style.display = 'none';
+                        document.getElementById(formId).classList.add('active');
+                    }
+                    if (formId !== 'resetConfirmForm' && resetTimerInterval) {
+                        clearInterval(resetTimerInterval);
+                        resetTimerInterval = null;
+                    }
+                };
+
+                if (forgotLink) {
+                    forgotLink.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        showResetView('resetRequestForm');
+                    });
+                }
+                if (backToLogin) backToLogin.addEventListener('click', (e) => { e.preventDefault(); showResetView('login'); });
+                if (backToLogin2) backToLogin2.addEventListener('click', (e) => { e.preventDefault(); showResetView('login'); });
+
+                // Запрос кода
+                if (resetRequestForm) {
+                    resetRequestForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        resetEmail = document.getElementById('resetEmail').value;
+                        const errorEl = document.getElementById('resetRequestError');
+                        const submitBtn = resetRequestForm.querySelector('.auth-submit');
+                        try {
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = 'Отправка...';
+                            errorEl.classList.remove('show');
+                            await this.auth.requestReset(resetEmail);
+                            // Показать форму ввода кода
+                            showResetView('resetConfirmForm');
+                            // Запустить таймер 15 минут
+                            let seconds = 900;
+                            const timerEl = document.getElementById('resetTimer');
+                            const updateTimer = () => {
+                                const m = Math.floor(seconds / 60);
+                                const s = seconds % 60;
+                                timerEl.textContent = `Код действителен: ${m}:${String(s).padStart(2, '0')}`;
+                                if (seconds <= 0) {
+                                    clearInterval(resetTimerInterval);
+                                    timerEl.textContent = 'Код истёк. Запросите новый.';
+                                    timerEl.style.color = '#dc2626';
+                                }
+                                seconds--;
+                            };
+                            updateTimer();
+                            resetTimerInterval = setInterval(updateTimer, 1000);
+                        } catch (err) {
+                            errorEl.textContent = err.message;
+                            errorEl.classList.add('show');
+                        } finally {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Отправить код';
+                        }
+                    });
+                }
+
+                // Подтверждение кода и смена пароля
+                if (resetConfirmForm) {
+                    resetConfirmForm.addEventListener('submit', async (e) => {
+                        e.preventDefault();
+                        const code = document.getElementById('resetCode').value;
+                        const newPassword = document.getElementById('resetNewPassword').value;
+                        const confirmPassword = document.getElementById('resetNewPasswordConfirm').value;
+                        const errorEl = document.getElementById('resetConfirmError');
+                        const submitBtn = resetConfirmForm.querySelector('.auth-submit');
+
+                        if (newPassword !== confirmPassword) {
+                            errorEl.textContent = 'Пароли не совпадают';
+                            errorEl.classList.add('show');
+                            return;
+                        }
+                        if (!/^\d{6}$/.test(code)) {
+                            errorEl.textContent = 'Код должен содержать 6 цифр';
+                            errorEl.classList.add('show');
+                            return;
+                        }
+
+                        try {
+                            submitBtn.disabled = true;
+                            submitBtn.textContent = 'Смена пароля...';
+                            errorEl.classList.remove('show');
+                            await this.auth.resetPassword(resetEmail, code, newPassword);
+                            if (resetTimerInterval) { clearInterval(resetTimerInterval); resetTimerInterval = null; }
+                            showResetView('login');
+                            this.showToast('Пароль успешно изменён. Войдите с новым паролем.', 'success');
+                        } catch (err) {
+                            errorEl.textContent = err.message;
+                            errorEl.classList.add('show');
+                        } finally {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = 'Сменить пароль';
+                        }
+                    });
+                }
             }
         }
 
@@ -12867,6 +13058,40 @@
                 </div>
                 <button type="submit" class="auth-submit">Войти</button>
                 <div id="loginError" class="auth-error"></div>
+                <a href="#" class="auth-forgot-link" id="forgotPasswordLink">Забыли пароль?</a>
+            </form>
+
+            <!-- Форма запроса сброса пароля -->
+            <form id="resetRequestForm" class="auth-form">
+                <p style="font-size:var(--fs-sm);color:var(--text-secondary);text-align:center;margin-bottom:var(--sp-md)">Введите email, на который зарегистрирован аккаунт</p>
+                <div class="auth-input-group">
+                    <label for="resetEmail">Email</label>
+                    <input type="email" id="resetEmail" class="auth-input" required autocomplete="email">
+                </div>
+                <button type="submit" class="auth-submit">Отправить код</button>
+                <div id="resetRequestError" class="auth-error"></div>
+                <a href="#" class="auth-back-link" id="backToLoginLink">← Назад ко входу</a>
+            </form>
+
+            <!-- Форма ввода кода и нового пароля -->
+            <form id="resetConfirmForm" class="auth-form">
+                <div id="resetSuccessMsg" class="auth-success-msg">Код отправлен на вашу почту</div>
+                <div id="resetTimer" class="auth-timer"></div>
+                <div class="auth-input-group">
+                    <label for="resetCode">Код из письма</label>
+                    <input type="text" id="resetCode" class="auth-input auth-code-input" required inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="000000" autocomplete="one-time-code">
+                </div>
+                <div class="auth-input-group">
+                    <label for="resetNewPassword">Новый пароль</label>
+                    <input type="password" id="resetNewPassword" class="auth-input" required autocomplete="new-password" minlength="6">
+                </div>
+                <div class="auth-input-group">
+                    <label for="resetNewPasswordConfirm">Повторите пароль</label>
+                    <input type="password" id="resetNewPasswordConfirm" class="auth-input" required autocomplete="new-password" minlength="6">
+                </div>
+                <button type="submit" class="auth-submit">Сменить пароль</button>
+                <div id="resetConfirmError" class="auth-error"></div>
+                <a href="#" class="auth-back-link" id="backToLoginLink2">← Назад ко входу</a>
             </form>
 
             <!-- Форма регистрации -->
