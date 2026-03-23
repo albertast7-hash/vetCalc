@@ -7277,6 +7277,194 @@
         .form-row:has(.drug-anim-wrap) {
             grid-template-columns: 1fr !important;
         }
+
+        /* ---------- Tutorial / Onboarding ---------- */
+        .tutorial-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            pointer-events: none;
+        }
+
+        .tutorial-backdrop {
+            position: fixed;
+            inset: 0;
+            z-index: 3000;
+            pointer-events: auto;
+            transition: opacity .3s var(--ease-out);
+        }
+
+        .tutorial-spotlight {
+            position: absolute;
+            z-index: 3001;
+            border-radius: var(--r-md);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.55);
+            pointer-events: none;
+            transition: all .35s var(--ease-out);
+        }
+
+        .tutorial-tooltip {
+            position: absolute;
+            z-index: 3002;
+            background: var(--bg-surface);
+            border-radius: var(--r-lg);
+            padding: var(--sp-lg);
+            max-width: 320px;
+            width: calc(100vw - 32px);
+            box-shadow: var(--shadow-lg), 0 0 0 1px var(--border);
+            pointer-events: auto;
+            animation: tutorialFadeIn .3s var(--ease-out);
+        }
+
+        @keyframes tutorialFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .tutorial-tooltip h3 {
+            font-size: var(--fs-lg);
+            font-weight: 700;
+            color: var(--text-primary);
+            margin: 0 0 var(--sp-xs) 0;
+        }
+
+        .tutorial-tooltip p {
+            font-size: var(--fs-sm);
+            color: var(--text-secondary);
+            line-height: 1.5;
+            margin: 0 0 var(--sp-md) 0;
+        }
+
+        .tutorial-tooltip .tutorial-counter {
+            font-size: var(--fs-2xs);
+            color: var(--text-muted);
+            margin-bottom: var(--sp-xs);
+        }
+
+        .tutorial-progress {
+            height: 3px;
+            background: var(--border);
+            border-radius: 2px;
+            margin-bottom: var(--sp-md);
+            overflow: hidden;
+        }
+
+        .tutorial-progress-bar {
+            height: 100%;
+            background: var(--accent);
+            border-radius: 2px;
+            transition: width .3s var(--ease-out);
+        }
+
+        .tutorial-footer {
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: var(--sp-xs);
+            flex-wrap: wrap;
+        }
+
+        .tutorial-btn-skip {
+            padding: var(--sp-xs) var(--sp-sm);
+            border: none;
+            background: none;
+            color: var(--text-muted);
+            font-size: var(--fs-sm);
+            cursor: pointer;
+            border-radius: var(--r-sm);
+            white-space: nowrap;
+        }
+
+        .tutorial-btn-skip:hover {
+            color: var(--text-secondary);
+            background: var(--bg-hover);
+        }
+
+        .tutorial-btn-next {
+            padding: var(--sp-xs) var(--sp-md);
+            border: none;
+            background: var(--accent);
+            color: var(--text-on-accent);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            border-radius: var(--r-full);
+            cursor: pointer;
+            transition: background var(--t-fast);
+            white-space: nowrap;
+        }
+
+        .tutorial-btn-next:hover {
+            background: var(--accent-dim);
+        }
+
+        .tutorial-welcome {
+            position: fixed;
+            inset: 0;
+            z-index: 3010;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.5);
+            pointer-events: auto;
+            animation: tutorialFadeIn .3s var(--ease-out);
+        }
+
+        .tutorial-welcome-card {
+            background: var(--bg-surface);
+            border-radius: var(--r-xl);
+            padding: var(--sp-2xl) var(--sp-xl);
+            max-width: 380px;
+            width: calc(100vw - 32px);
+            text-align: center;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .tutorial-welcome-card h2 {
+            font-size: var(--fs-xl);
+            font-weight: 700;
+            margin: 0 0 var(--sp-xs) 0;
+            color: var(--text-primary);
+        }
+
+        .tutorial-welcome-card p {
+            font-size: var(--fs-sm);
+            color: var(--text-secondary);
+            margin: 0 0 var(--sp-lg) 0;
+            line-height: 1.5;
+        }
+
+        .tutorial-welcome-card .tutorial-btn-next {
+            padding: var(--sp-sm) var(--sp-xl);
+            font-size: var(--fs-base);
+        }
+
+        .btn-tutorial {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-xs);
+            width: 100%;
+            padding: var(--sp-sm) var(--sp-md);
+            border: 1px solid var(--border);
+            background: var(--bg-surface);
+            color: var(--accent);
+            font-size: var(--fs-sm);
+            font-weight: 500;
+            border-radius: var(--r-md);
+            cursor: pointer;
+            transition: all var(--t-fast);
+            margin-bottom: var(--sp-sm);
+        }
+
+        .btn-tutorial:hover {
+            background: var(--accent-glow);
+            border-color: var(--accent);
+        }
+
+        .btn-tutorial svg {
+            width: 20px;
+            height: 20px;
+            flex-shrink: 0;
+        }
     </style>
 </head>
 
@@ -11255,6 +11443,13 @@
             renderLogout() {
                 return `
                 <div class="account-section account-section--logout">
+                    <button class="btn-tutorial" id="restartTutorialBtn">
+                        <svg viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 16V12M12 8H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Пройти обучение заново
+                    </button>
                     <button class="btn-logout" id="logoutBtn">
                         <svg viewBox="0 0 24 24" fill="none">
                             <path d="M9 21H5C3.89 21 3 20.1 3 19V5C3 3.9 3.89 3 5 3H9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -11308,6 +11503,18 @@
                 const passForm = document.getElementById('changePasswordForm');
                 if (passForm) {
                     passForm.addEventListener('submit', (e) => this.handleChangePassword(e));
+                }
+
+                // Обучение
+                const tutorialBtn = document.getElementById('restartTutorialBtn');
+                if (tutorialBtn) {
+                    tutorialBtn.addEventListener('click', () => {
+                        localStorage.removeItem('vethelper_tutorial_done');
+                        // Переключаемся на главную вкладку и запускаем тур
+                        const infBtn = document.querySelector('.tab[data-calculator="infusion"]');
+                        if (infBtn) infBtn.click();
+                        setTimeout(() => window.app.tutorial.start(), 300);
+                    });
                 }
 
                 // Выход
@@ -11709,6 +11916,392 @@
         window.AccountPage = AccountPage;
 
         /**
+         * VetCalc Pro — Tutorial Manager
+         * Пошаговый обучающий тур по интерфейсу с детальным обзором каждой вкладки
+         */
+        class TutorialManager {
+            constructor(app) {
+                this.app = app;
+                this.currentStep = 0;
+                this.overlay = null;
+                this.steps = [
+                    // ─── ИНФУЗИЯ ───
+                    {
+                        tab: 'infusion',
+                        target: '#animalSelect',
+                        title: 'Вид и вес животного',
+                        text: 'Начните с выбора вида (собака/кошка) — это влияет на поддерживающий объём. Рядом укажите вес в кг.'
+                    },
+                    {
+                        tab: 'infusion',
+                        target: '#inf_dehyd',
+                        title: 'Степень дегидратации',
+                        text: 'Введите процент дегидратации (0–15%). Время инфузии рассчитается автоматически, но вы можете задать его вручную в соседнем поле.'
+                    },
+                    {
+                        tab: 'infusion',
+                        target: '#inf_heart',
+                        title: 'Клинические признаки',
+                        text: 'Отметьте актуальные признаки: болезнь сердца, диарея, рвота, шок/гипотензия, неонат, ЧМТ. Они влияют на выбор раствора и коррекцию скорости.'
+                    },
+                    {
+                        tab: 'infusion',
+                        target: '#infusionLabHeader',
+                        title: 'Лабораторные данные',
+                        text: 'Нажмите чтобы раскрыть. Можно ввести калий, натрий, глюкозу, альбумин, температуру — расчёт станет точнее, добавятся коррекции электролитов.'
+                    },
+                    {
+                        tab: 'infusion',
+                        target: '.btn-infusion-submit',
+                        title: 'Результат и ползунок скорости',
+                        text: 'После расчёта появится общий объём за 24ч, план скоростей и анимация капельницы. Ползунком внизу можно менять время восполнения дефицита — начальная и поддерживающая скорости пересчитаются мгновенно.',
+                        position: 'top'
+                    },
+                    // ─── ПОДКОЖНО ───
+                    {
+                        target: '#tab-subcutaneous',
+                        title: 'Подкожные инфузии',
+                        text: 'Расчёт подкожных инфузий — заполняется аналогично внутривенным. Подходит когда в/в доступ не нужен.'
+                    },
+                    // ─── ИПС / CRI ───
+                    {
+                        tab: 'cri',
+                        target: '#cri_dose',
+                        title: 'Базовый расчёт ИПС',
+                        text: 'Обязательные поля: доза, единица (мкг или мг/кг), интервал (мин/ч/сут), вес и концентрация препарата. Этого достаточно для базового расчёта скорости.'
+                    },
+                    {
+                        tab: 'cri',
+                        target: '#cri_hours',
+                        title: 'Финальный расчёт (опция)',
+                        text: 'Дополнительно можно задать время инфузии, скорость или общий объём — калькулятор рассчитает остальные. На телефоне этот блок свёрнут, нажмите заголовок чтобы раскрыть.'
+                    },
+                    // ─── DKA ───
+                    {
+                        target: '#tab-dka',
+                        title: 'Протокол DKA',
+                        text: 'Помощь в подборе скорости введения инсулина в зависимости от текущей глюкозы пациента в кетоацидозе.'
+                    },
+                    // ─── ДОЗИРОВКА ───
+                    {
+                        tab: 'dosage',
+                        target: '#dos_savedDrug',
+                        title: 'Сохранённые препараты',
+                        text: 'Если вы ранее сохраняли препараты — выберите из списка. Форма заполнится автоматически: название, доза, форма выпуска и содержание для выбранного вида животного.'
+                    },
+                    {
+                        tab: 'dosage',
+                        target: '#dos_dose',
+                        title: 'Параметры препарата',
+                        text: 'Введите дозу (мг/кг), выберите форму выпуска (таблетка, капсула, раствор, суспензия) и укажите содержание действующего вещества в одной единице.'
+                    },
+                    {
+                        tab: 'dosage',
+                        target: '#dos_maxDivision',
+                        title: 'Точность деления таблетки',
+                        text: 'Укажите минимальную часть, на которую можно разделить таблетку: 1/2, 1/4, 1/8 или 1/16. Чем мельче — тем точнее подбор дозы. Для растворов это поле скрывается.'
+                    },
+                    {
+                        tab: 'dosage',
+                        target: '#dosageSaveBtn',
+                        title: 'Сохранение и управление',
+                        text: 'Нажмите чтобы сохранить препарат в свою базу — он появится в выпадающем списке. Ниже кнопка «Мои препараты» для просмотра, редактирования и удаления сохранённых.',
+                        position: 'top'
+                    },
+                    // ─── СПРАВОЧНИК ───
+                    {
+                        target: '#tab-drugs',
+                        title: 'Справочник препаратов',
+                        text: 'Поиск по базе препаратов — дозировки для собак и кошек.'
+                    },
+                    // ─── ОБЩЕЕ ───
+                    {
+                        target: '#historyBtn',
+                        title: 'История расчётов',
+                        text: 'Здесь хранятся ваши последние расчёты. Нажмите чтобы открыть и вернуться к любому прежнему результату.',
+                        position: 'bottom-left'
+                    },
+                    // ─── ЛИЧНЫЙ КАБИНЕТ ───
+                    {
+                        tab: 'account',
+                        target: '.account-section--subscription',
+                        title: 'Подписка',
+                        text: 'Здесь отображается статус вашей подписки. Можно оплатить подписку или оформить пробный период.'
+                    },
+                    {
+                        tab: 'account',
+                        target: '.account-section--install',
+                        title: 'Установка приложения',
+                        text: 'Инструкция по установке VetHelper на телефон — для Android скачайте APK, для iPhone добавьте через Safari на рабочий стол.'
+                    },
+                    {
+                        tab: 'account',
+                        target: '#restartTutorialBtn',
+                        title: 'Повторное обучение',
+                        text: 'Если что-то забудете — нажмите эту кнопку чтобы пройти обучение заново.'
+                    }
+                ];
+            }
+
+            shouldShow() {
+                return !localStorage.getItem('vethelper_tutorial_done');
+            }
+
+            start() {
+                this.currentStep = -1;
+                this.render();
+            }
+
+            waitForElement(selector, timeout) {
+                return new Promise(function(resolve) {
+                    var el = document.querySelector(selector);
+                    if (el) { resolve(el); return; }
+                    var elapsed = 0;
+                    var interval = setInterval(function() {
+                        elapsed += 100;
+                        el = document.querySelector(selector);
+                        if (el) { clearInterval(interval); resolve(el); }
+                        else if (elapsed >= timeout) { clearInterval(interval); resolve(null); }
+                    }, 100);
+                });
+            }
+
+            switchTab(tabName) {
+                return new Promise(resolve => {
+                    if (this.app.currentTab === tabName) { resolve(); return; }
+                    const btn = document.querySelector('.tab[data-calculator="' + tabName + '"]');
+                    if (btn) {
+                        btn.click();
+                        setTimeout(resolve, 350);
+                    } else {
+                        resolve();
+                    }
+                });
+            }
+
+            async render() {
+                this.cleanup();
+
+                if (this.currentStep === -1) {
+                    this.renderWelcome();
+                    return;
+                }
+
+                if (this.currentStep >= this.steps.length) {
+                    this.finish();
+                    return;
+                }
+
+                const step = this.steps[this.currentStep];
+
+                // Switch tab if step requires it
+                if (step.tab) {
+                    await this.switchTab(step.tab);
+                }
+
+                // Wait for target element to appear (async-loaded tabs like account)
+                var targetEl = document.querySelector(step.target);
+                if (!targetEl) {
+                    var waited = await this.waitForElement(step.target, 3000);
+                    if (!waited) {
+                        this.currentStep++;
+                        this.render();
+                        return;
+                    }
+                    targetEl = waited;
+                }
+
+                targetEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+                setTimeout(() => {
+                    const pad = 8;
+
+                    this.overlay = document.createElement('div');
+                    this.overlay.className = 'tutorial-overlay';
+
+                    const backdrop = document.createElement('div');
+                    backdrop.className = 'tutorial-backdrop';
+                    this.overlay.appendChild(backdrop);
+
+                    const spotlight = document.createElement('div');
+                    spotlight.className = 'tutorial-spotlight';
+                    this.overlay.appendChild(spotlight);
+
+                    const tooltip = document.createElement('div');
+                    tooltip.className = 'tutorial-tooltip';
+
+                    const h3 = document.createElement('h3');
+                    h3.textContent = step.title;
+                    tooltip.appendChild(h3);
+
+                    const p = document.createElement('p');
+                    p.textContent = step.text;
+                    tooltip.appendChild(p);
+
+                    // Counter + progress bar
+                    const counter = document.createElement('div');
+                    counter.className = 'tutorial-counter';
+                    counter.textContent = (this.currentStep + 1) + ' из ' + this.steps.length;
+                    tooltip.appendChild(counter);
+
+                    const progress = document.createElement('div');
+                    progress.className = 'tutorial-progress';
+                    const progressBar = document.createElement('div');
+                    progressBar.className = 'tutorial-progress-bar';
+                    progressBar.style.width = ((this.currentStep + 1) / this.steps.length * 100) + '%';
+                    progress.appendChild(progressBar);
+                    tooltip.appendChild(progress);
+
+                    // Buttons
+                    const footer = document.createElement('div');
+                    footer.className = 'tutorial-footer';
+
+                    if (this.currentStep > 0) {
+                        const backBtn = document.createElement('button');
+                        backBtn.className = 'tutorial-btn-skip';
+                        backBtn.textContent = 'Назад';
+                        backBtn.addEventListener('click', function() { this.currentStep--; this.render(); }.bind(this));
+                        footer.appendChild(backBtn);
+                    }
+
+                    const skipBtn = document.createElement('button');
+                    skipBtn.className = 'tutorial-btn-skip';
+                    skipBtn.textContent = 'Пропустить';
+                    skipBtn.addEventListener('click', function() { this.finish(); }.bind(this));
+                    footer.appendChild(skipBtn);
+
+                    const nextBtn = document.createElement('button');
+                    nextBtn.className = 'tutorial-btn-next';
+                    nextBtn.textContent = this.currentStep === this.steps.length - 1 ? 'Готово!' : 'Далее';
+                    nextBtn.addEventListener('click', function() { this.currentStep++; this.render(); }.bind(this));
+                    footer.appendChild(nextBtn);
+
+                    tooltip.appendChild(footer);
+                    this.overlay.appendChild(tooltip);
+                    document.body.appendChild(this.overlay);
+
+                    // Position spotlight + tooltip, and keep updated on scroll/resize
+                    var updatePosition = function() {
+                        var r = targetEl.getBoundingClientRect();
+                        spotlight.style.top = (r.top - pad) + 'px';
+                        spotlight.style.left = (r.left - pad) + 'px';
+                        spotlight.style.width = (r.width + pad * 2) + 'px';
+                        spotlight.style.height = (r.height + pad * 2) + 'px';
+                        this.positionTooltip(tooltip, r, step.position || 'bottom');
+                    }.bind(this);
+
+                    updatePosition();
+                    this._onScroll = updatePosition;
+                    this._onResize = updatePosition;
+                    window.addEventListener('scroll', this._onScroll, true);
+                    window.addEventListener('resize', this._onResize);
+                }, 150);
+            }
+
+            renderWelcome() {
+                this.overlay = document.createElement('div');
+                this.overlay.className = 'tutorial-welcome';
+
+                const card = document.createElement('div');
+                card.className = 'tutorial-welcome-card';
+
+                const h2 = document.createElement('h2');
+                h2.textContent = 'Добро пожаловать в VetHelper!';
+                card.appendChild(h2);
+
+                const p = document.createElement('p');
+                p.textContent = 'Покажем основные функции и как ими пользоваться. Займёт пару минут.';
+                card.appendChild(p);
+
+                const btnRow = document.createElement('div');
+                btnRow.style.cssText = 'display:flex;gap:var(--sp-sm);justify-content:center';
+
+                const skipBtn = document.createElement('button');
+                skipBtn.className = 'tutorial-btn-skip';
+                skipBtn.textContent = 'Пропустить';
+                skipBtn.addEventListener('click', function() { this.finish(); }.bind(this));
+                btnRow.appendChild(skipBtn);
+
+                const startBtn = document.createElement('button');
+                startBtn.className = 'tutorial-btn-next';
+                startBtn.textContent = 'Начать обзор';
+                startBtn.addEventListener('click', function() { this.currentStep = 0; this.render(); }.bind(this));
+                btnRow.appendChild(startBtn);
+
+                card.appendChild(btnRow);
+                this.overlay.appendChild(card);
+                document.body.appendChild(this.overlay);
+            }
+
+            positionTooltip(tooltip, targetRect, position) {
+                const gap = 12;
+                const margin = 12;
+                const vw = window.innerWidth;
+                const vh = window.innerHeight;
+
+                // Measure tooltip size
+                tooltip.style.position = 'fixed';
+                tooltip.style.top = '0px';
+                tooltip.style.left = '0px';
+                tooltip.style.maxWidth = Math.min(320, vw - margin * 2) + 'px';
+                var tRect = tooltip.getBoundingClientRect();
+                var tW = tRect.width;
+                var tH = tRect.height;
+
+                // Horizontal: center on target, clamp to viewport
+                var left = targetRect.left + targetRect.width / 2 - tW / 2;
+                if (left < margin) left = margin;
+                if (left + tW > vw - margin) left = vw - margin - tW;
+
+                // Vertical: prefer below target, fallback above
+                var top;
+                var spaceBelow = vh - targetRect.bottom - gap;
+                var spaceAbove = targetRect.top - gap;
+
+                if (position === 'top' && spaceAbove >= tH) {
+                    top = targetRect.top - gap - tH;
+                } else if (spaceBelow >= tH) {
+                    top = targetRect.bottom + gap;
+                } else if (spaceAbove >= tH) {
+                    top = targetRect.top - gap - tH;
+                } else {
+                    // Neither fits fully — place in larger space, clamped
+                    top = spaceBelow > spaceAbove ? targetRect.bottom + gap : targetRect.top - gap - tH;
+                }
+
+                if (top < margin) top = margin;
+                if (top + tH > vh - margin) top = vh - margin - tH;
+
+                tooltip.style.top = top + 'px';
+                tooltip.style.left = left + 'px';
+            }
+
+            finish() {
+                this.cleanup();
+                localStorage.setItem('vethelper_tutorial_done', '1');
+                // Return to infusion tab
+                var infBtn = document.querySelector('.tab[data-calculator="infusion"]');
+                if (infBtn && this.app.currentTab !== 'infusion') infBtn.click();
+                this.app.showToast('Обучение завершено! Повторить можно в Личном кабинете.', 'info', 5000);
+            }
+
+            cleanup() {
+                if (this._onScroll) {
+                    window.removeEventListener('scroll', this._onScroll, true);
+                    this._onScroll = null;
+                }
+                if (this._onResize) {
+                    window.removeEventListener('resize', this._onResize);
+                    this._onResize = null;
+                }
+                if (this.overlay) {
+                    this.overlay.remove();
+                    this.overlay = null;
+                }
+            }
+        }
+
+        /**
          * VetCalc Pro — Main App
          * Инициализация, навигация, рендеринг результатов из JSON
          */
@@ -11733,6 +12326,7 @@
                 this.lastResult = null;
                 this.history = new HistoryManager();
                 this.auth = new AuthManager();
+                this.tutorial = new TutorialManager(this);
             }
 
             init() {
@@ -11775,6 +12369,11 @@
                     this.loadCalculator(startTab);
                 } else {
                     this.loadCalculator('infusion');
+                }
+
+                // Запуск обучающего тура для новых пользователей
+                if (this.tutorial.shouldShow()) {
+                    setTimeout(() => this.tutorial.start(), 500);
                 }
             }
 
