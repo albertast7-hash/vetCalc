@@ -8170,9 +8170,9 @@
                     case 'dka':
                         return `${p.animalType === 'dog' ? '🐕 Собака' : '🐈 Кошка'}, ${p.weight} кг, глю ${p.glucose}`;
                     case 'drugs':
-                        return `🔍 ${p.query || ''}`;
+                        return `🔍 ${esc(p.query || '')}`;
                     case 'dosage':
-                        return `${p.animalType === 'dog' ? '🐕 Собака' : '🐈 Кошка'}, ${p.weight} кг, ${p.drugName || 'Препарат'} ${p.doseMgKg} мг/кг`;
+                        return `${p.animalType === 'dog' ? '🐕 Собака' : '🐈 Кошка'}, ${p.weight} кг, ${esc(p.drugName || 'Препарат')} ${p.doseMgKg} мг/кг`;
                     default:
                         return 'Расчёт';
                 }
@@ -13309,7 +13309,7 @@
                 const animalName = r.animalType === 'cat' ? 'Кошка' : 'Собака';
                 const formNames = { tablet: 'таблетки', capsule: 'капсулы', solution: 'раствор', suspension: 'суспензия' };
                 const formName = formNames[r.formType] || r.formType;
-                const esc = (obj) => JSON.stringify(obj).replace(/'/g, '&#39;');
+                const jsonAttr = (obj) => JSON.stringify(obj).replace(/'/g, '&#39;');
                 const rd = (v) => +parseFloat(v).toFixed(2);
                 const isLiquid = r.formType === 'solution' || r.formType === 'suspension';
                 const unitWord = r.formType === 'capsule' ? 'капс.' : 'таб.';
@@ -13329,7 +13329,7 @@
                 // ─── Варианты дозирования ───
                 if (isLiquid) {
                     const solOpt = { type: 'solution', units: r.mlNeeded + ' мл', actualMg: r.totalDoseMg, actualDoseMgKg: r.doseMgKg, unitCount: r.mlNeeded };
-                    html += `<div class="dosage-recommendation-card" data-option-type="solution" data-option-json='${esc(solOpt)}' style="text-align:center;padding:var(--sp-sm);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer">
+                    html += `<div class="dosage-recommendation-card" data-option-type="solution" data-option-json='${jsonAttr(solOpt)}' style="text-align:center;padding:var(--sp-sm);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer">
                 <span style="font-size:var(--fs-xs);color:var(--text-muted)">💉 Набрать</span>
                 <span style="font-size:var(--fs-lg);font-weight:700;color:var(--text-primary);margin-left:var(--sp-xs)">${r.mlNeeded} мл</span>
             </div>`;
@@ -13338,7 +13338,7 @@
 
                     if (rec.isExact) {
                         const exactOpt = { type: 'exact', ...rec };
-                        html += `<div class="dosage-recommendation-card" data-option-type="exact" data-option-json='${esc(exactOpt)}' style="display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--sp-xs);border:1px solid #16a34a;border-radius:var(--r-sm);cursor:pointer;background:rgba(22,163,74,0.04);text-align:center">
+                        html += `<div class="dosage-recommendation-card" data-option-type="exact" data-option-json='${jsonAttr(exactOpt)}' style="display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--sp-xs);border:1px solid #16a34a;border-radius:var(--r-sm);cursor:pointer;background:rgba(22,163,74,0.04);text-align:center">
                     <span style="font-size:10px;font-weight:600;color:#16a34a;text-transform:uppercase">✅ Точная</span>
                     <span style="font-size:var(--fs-base);font-weight:700;color:var(--text-primary);margin:2px 0">${rec.units} ${unitWord}</span>
                     <span style="font-size:10px;color:var(--text-muted)"><b style="color:var(--text-primary)">${rec.actualMg}</b> мг · <b style="color:var(--text-primary)">${rd(rec.actualDoseMgKg)}</b> мг/кг</span>
@@ -13353,7 +13353,7 @@
 
                         if (r.lowerOption) {
                             const lowOpt = { type: 'lower', ...r.lowerOption };
-                            html += `<div class="dosage-option-card dosage-option-card--lower" data-option-type="lower" data-option-json='${esc(lowOpt)}' style="display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--sp-xs);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;text-align:center">
+                            html += `<div class="dosage-option-card dosage-option-card--lower" data-option-type="lower" data-option-json='${jsonAttr(lowOpt)}' style="display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--sp-xs);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;text-align:center">
                         <span style="font-size:10px;font-weight:600;color:#ea580c;text-transform:uppercase">▼ Ниже</span>
                         <span style="font-size:var(--fs-base);font-weight:700;color:var(--text-primary);margin:2px 0">${r.lowerOption.units} ${unitWord}</span>
                         <span style="font-size:10px;color:var(--text-muted)"><b style="color:var(--text-primary)">${r.lowerOption.actualMg}</b> мг · <b style="color:var(--text-primary)">${rd(r.lowerOption.actualDoseMgKg)}</b> мг/кг</span>
@@ -13362,7 +13362,7 @@
 
                         if (r.higherOption) {
                             const highOpt = { type: 'higher', ...r.higherOption };
-                            html += `<div class="dosage-option-card dosage-option-card--higher" data-option-type="higher" data-option-json='${esc(highOpt)}' style="display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--sp-xs);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;text-align:center">
+                            html += `<div class="dosage-option-card dosage-option-card--higher" data-option-type="higher" data-option-json='${jsonAttr(highOpt)}' style="display:flex;flex-direction:column;align-items:center;padding:var(--sp-sm) var(--sp-xs);border:1px solid var(--border);border-radius:var(--r-sm);cursor:pointer;text-align:center">
                         <span style="font-size:10px;font-weight:600;color:#2563eb;text-transform:uppercase">▲ Выше</span>
                         <span style="font-size:var(--fs-base);font-weight:700;color:var(--text-primary);margin:2px 0">${r.higherOption.units} ${unitWord}</span>
                         <span style="font-size:10px;color:var(--text-muted)"><b style="color:var(--text-primary)">${r.higherOption.actualMg}</b> мг · <b style="color:var(--text-primary)">${rd(r.higherOption.actualDoseMgKg)}</b> мг/кг</span>
@@ -13376,7 +13376,7 @@
                             const tabletsNeeded = Math.ceil(fd.take / fd.parts);
                             const tabText = tabletsNeeded > 1 ? ` ${tabletsNeeded} таб.` : '';
                             const finerOpt = { type: 'finer', units: fd.take + '/' + fd.parts, unitCount: fd.take / fd.parts, actualMg: fd.actualMg, actualDoseMgKg: fd.actualDoseMgKg, parts: fd.parts, take: fd.take, partMg: fd.partMg };
-                            html += `<div class="dosage-finer-card" data-option-type="finer" data-option-json='${esc(finerOpt)}' style="margin-top:var(--sp-xs);padding:var(--sp-sm) var(--sp-xs);font-size:var(--fs-xs);color:var(--blue-800);display:flex;flex-direction:column;align-items:center;text-align:center">
+                            html += `<div class="dosage-finer-card" data-option-type="finer" data-option-json='${jsonAttr(finerOpt)}' style="margin-top:var(--sp-xs);padding:var(--sp-sm) var(--sp-xs);font-size:var(--fs-xs);color:var(--blue-800);display:flex;flex-direction:column;align-items:center;text-align:center">
                         <span style="font-size:10px;font-weight:600;color:#7c3aed;text-transform:uppercase">◆ Точнее</span>
                         <span style="font-size:var(--fs-base);font-weight:700;color:var(--text-primary);margin:2px 0">🪨 ${fd.take}/${fd.parts} ${unitWord}</span>
                         <span style="font-size:10px;color:var(--text-muted)"><b style="color:var(--text-primary)">${fd.actualMg}</b> мг · <b style="color:var(--text-primary)">${rd(fd.actualDoseMgKg)}</b> мг/кг</span>
