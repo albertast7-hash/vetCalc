@@ -2576,12 +2576,14 @@
             .account-page {
                 grid-template-columns: 1fr 1fr;
                 grid-template-areas:
+                    "trial trial"
                     "subscription subscription"
                     "profile devices"
                     "payments payments"
                     "install install"
                     "logout logout";
             }
+            .trial-pending-block { grid-area: trial; }
             .account-section--subscription { grid-area: subscription; }
             .account-section--profile { grid-area: profile; }
             .account-section--devices { grid-area: devices; }
@@ -12367,6 +12369,15 @@
                 var targetTab = subStatus === 'active' ? 'infusion' : 'account';
                 var targetBtn = document.querySelector('.tab[data-calculator="' + targetTab + '"]');
                 if (targetBtn && this.app.currentTab !== targetTab) targetBtn.click();
+                // Скролл к кнопке триала или наверх
+                setTimeout(function() {
+                    var trialBlock = document.querySelector('.trial-pending-block') || document.querySelector('.btn-trial');
+                    if (trialBlock) {
+                        trialBlock.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    } else {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }
+                }, 400);
                 this.app.showToast('Обучение завершено! Повторить можно в Личном кабинете.', 'info', 5000);
             }
 
