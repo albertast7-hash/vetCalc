@@ -9555,11 +9555,11 @@
                 if (frac < 0.0001) return `${whole}`;
 
                 const map = [
-                    [0.0625, '1/16'], [0.125, '1/8'], [0.1875, '3/16'],
-                    [0.25, '1/4'], [0.3125, '5/16'], [0.375, '3/8'],
+                    [0.0625, '1/16'], [0.125, '1/8'], [1/6, '1/6'], [0.1875, '3/16'],
+                    [0.25, '1/4'], [0.3125, '5/16'], [1/3, '1/3'], [0.375, '3/8'],
                     [0.4375, '7/16'], [0.5, '1/2'], [0.5625, '9/16'],
-                    [0.625, '5/8'], [0.6875, '11/16'], [0.75, '3/4'],
-                    [0.8125, '13/16'], [0.875, '7/8'], [0.9375, '15/16']
+                    [0.625, '5/8'], [2/3, '2/3'], [0.6875, '11/16'], [0.75, '3/4'],
+                    [0.8125, '13/16'], [5/6, '5/6'], [0.875, '7/8'], [0.9375, '15/16']
                 ];
 
                 let best = null, bestDiff = Infinity;
@@ -9809,7 +9809,9 @@
                             <label for="dos_maxDivision">Макс. деление</label>
                             <select id="dos_maxDivision" name="maxDivision">
                                 <option value="2">На 1/2</option>
+                                <option value="3">На 1/3</option>
                                 <option value="4">На 1/4</option>
+                                <option value="6">На 1/6</option>
                                 <option value="8" selected>На 1/8</option>
                                 <option value="16">На 1/16</option>
                             </select>
@@ -10431,7 +10433,7 @@
                     const isSel = selType === 'finer';
                     html += '<div class="rx-opt-card rx-opt-card--finer' + (isSel ? ' rx-opt-card--selected' : '') + '" data-rx-id="' + item.id + '" data-opt-type="finer">'
                         + '<div class="rx-opt-label">\ud83d\udd2c \u041c\u0435\u043b\u043a\u043e\u0435</div>'
-                        + '<div class="rx-opt-value">' + fd.take + '/' + fd.parts + ' ' + unitWord + '</div>'
+                        + '<div class="rx-opt-value">' + simplifyFraction(fd.take, fd.parts).join('/') + ' ' + unitWord + '</div>'
                         + '<div class="rx-opt-detail">' + fd.actualMg + ' \u043c\u0433 \u00b7 ' + (+parseFloat(fd.actualDoseMgKg).toFixed(2)) + ' \u043c\u0433/\u043a\u0433</div>'
                         + '</div>';
                 }
@@ -10469,7 +10471,7 @@
                     case 'finer':
                         if (r.finerDivision) {
                             const fd = r.finerDivision;
-                            newOption = { type: 'finer', units: fd.take + '/' + fd.parts, unitCount: fd.take / fd.parts, actualMg: fd.actualMg, actualDoseMgKg: fd.actualDoseMgKg, parts: fd.parts, take: fd.take, partMg: fd.partMg };
+                            newOption = { type: 'finer', units: simplifyFraction(fd.take, fd.parts).join('/'), unitCount: fd.take / fd.parts, actualMg: fd.actualMg, actualDoseMgKg: fd.actualDoseMgKg, parts: fd.parts, take: fd.take, partMg: fd.partMg };
                         }
                         break;
                 }
@@ -11793,7 +11795,7 @@
                         tab: 'dosage',
                         target: '#dos_maxDivision',
                         title: 'Точность деления таблетки',
-                        text: 'Укажите минимальную часть, на которую можно разделить таблетку: 1/2, 1/4, 1/8 или 1/16. Чем мельче — тем точнее подбор дозы. Для растворов это поле скрывается.'
+                        text: 'Укажите минимальную часть, на которую можно разделить таблетку: 1/2, 1/3, 1/4, 1/6, 1/8 или 1/16. Чем мельче — тем точнее подбор дозы. Для растворов это поле скрывается.'
                     },
                     {
                         tab: 'dosage',
@@ -12125,6 +12127,12 @@
         });
 
         // Утилита экранирования HTML для защиты от XSS
+        function simplifyFraction(num, den) {
+            const gcd = (a, b) => b === 0 ? a : gcd(b, a % b);
+            const d = gcd(Math.abs(num), Math.abs(den));
+            return [num / d, den / d];
+        }
+
         function esc(str) {
             if (str == null) return '';
             const div = document.createElement('div');
@@ -13207,10 +13215,10 @@
                             const fd = r.finerDivision;
                             const tabletsNeeded = Math.ceil(fd.take / fd.parts);
                             const tabText = tabletsNeeded > 1 ? ` ${tabletsNeeded} таб.` : '';
-                            const finerOpt = { type: 'finer', units: fd.take + '/' + fd.parts, unitCount: fd.take / fd.parts, actualMg: fd.actualMg, actualDoseMgKg: fd.actualDoseMgKg, parts: fd.parts, take: fd.take, partMg: fd.partMg };
+                            const finerOpt = { type: 'finer', units: simplifyFraction(fd.take, fd.parts).join('/'), unitCount: fd.take / fd.parts, actualMg: fd.actualMg, actualDoseMgKg: fd.actualDoseMgKg, parts: fd.parts, take: fd.take, partMg: fd.partMg };
                             html += `<div class="dosage-finer-card" data-option-type="finer" data-option-json='${jsonAttr(finerOpt)}' style="margin-top:var(--sp-xs);padding:var(--sp-sm) var(--sp-xs);font-size:var(--fs-xs);color:var(--blue-800);display:flex;flex-direction:column;align-items:center;text-align:center">
                         <span style="font-size:10px;font-weight:600;color:#7c3aed;text-transform:uppercase">◆ Точнее</span>
-                        <span style="font-size:var(--fs-base);font-weight:700;color:var(--text-primary);margin:2px 0">🪨 ${fd.take}/${fd.parts} ${unitWord}</span>
+                        <span style="font-size:var(--fs-base);font-weight:700;color:var(--text-primary);margin:2px 0">🪨 ${simplifyFraction(fd.take, fd.parts).join('/')} ${unitWord}</span>
                         <span style="font-size:10px;color:var(--text-muted)"><b style="color:var(--text-primary)">${fd.actualMg}</b> мг · <b style="color:var(--text-primary)">${rd(fd.actualDoseMgKg)}</b> мг/кг</span>
                         <span style="font-size:10px;color:var(--blue-600);margin-top:3px">Расстолочь${tabText}, на ${fd.parts} частей (${fd.partMg} мг), <span style="color:#ea580c;font-weight:700">взять ${fd.take} из них.</span></span>
                     </div>`;
