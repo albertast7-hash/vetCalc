@@ -8380,8 +8380,9 @@
                     const payload = JSON.parse(atob(token.split('.')[1]));
                     // exp — Unix timestamp в секундах
                     if (payload.exp && payload.exp < Date.now() / 1000) {
-                        // Токен истёк — НЕ удаляем, сервер выдаст новый при следующем запросе
-                        return true;
+                        // Токен истёк — удаляем, пользователь должен войти заново
+                        this.clearToken();
+                        return false;
                     }
                     return true;
                 } catch {
@@ -11008,6 +11009,11 @@
                 });
 
                 if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('vethelper_token');
+                        window.location.reload();
+                        throw new Error('Сессия истекла. Пожалуйста, войдите снова');
+                    }
                     const text = await response.text().catch(() => '');
                     throw new Error(text || `Ошибка сервера: ${response.status}`);
                 }
@@ -11041,7 +11047,14 @@
                     body: JSON.stringify({})
                 });
 
-                if (!response.ok) throw new Error('Ошибка инициализации платежа');
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('vethelper_token');
+                        window.location.reload();
+                        throw new Error('Сессия истекла. Пожалуйста, войдите снова');
+                    }
+                    throw new Error('Ошибка инициализации платежа');
+                }
                 return response.json();
             }
         }
