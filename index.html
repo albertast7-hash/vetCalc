@@ -8380,9 +8380,8 @@
                     const payload = JSON.parse(atob(token.split('.')[1]));
                     // exp — Unix timestamp в секундах
                     if (payload.exp && payload.exp < Date.now() / 1000) {
-                        // Токен истёк — удаляем, пользователь должен войти заново
-                        this.clearToken();
-                        return false;
+                        // Токен истёк — отправляем на сервер, он выдаст новый или вернёт 401
+                        return true;
                     }
                     return true;
                 } catch {
@@ -11018,7 +11017,14 @@
                     throw new Error(text || `Ошибка сервера: ${response.status}`);
                 }
 
-                return response.json();
+                const data = await response.json();
+
+                // Сохраняем обновлённый токен если сервер выдал новый
+                if (data.newToken) {
+                    localStorage.setItem('vethelper_token', data.newToken);
+                }
+
+                return data;
             }
 
             async getProfile() {
