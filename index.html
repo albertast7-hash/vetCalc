@@ -9,7 +9,7 @@
     <link rel="apple-touch-icon" href="assets/icons/icon-512.png">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#a8d5a2">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.vetpodobed.pro https://script.google.com; font-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://api.vetpodobed.pro https://supa.vetpodobed.pro https://script.google.com; font-src 'self'; frame-src 'none'; object-src 'none'; base-uri 'self'">
     <style>
         /* =============================================
    VetCalc Pro — Design System
@@ -7500,6 +7500,7 @@
             animation: trialActivatePulse 2s infinite;
         }
     </style>
+<script>window.CALC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc5MjgyODYzLCJleHAiOjIwOTQ2NDI4NjN9.UXtmCmsdaQoLj6V1_Llw9q9nyXMDHZ72lAOftXQdli0';</script>
 </head>
 
 <body>
@@ -7975,7 +7976,7 @@
 
         class VetCalculatorAPI {
             constructor() {
-                this.baseURL = 'https://api.vetpodobed.pro/webhook/web-calculator';
+                this.baseURL = 'https://supa.vetpodobed.pro/functions/v1/calc-calculate';
                 this.timeout = 15000;
             }
 
@@ -8022,7 +8023,7 @@
                     const response = await fetch(this.url, {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Content-Type': 'application/json', 'apikey': window.CALC_ANON,
                             'Authorization': `Bearer ${token}`
                         },
                         body: JSON.stringify({ type, params, deviceId }),
@@ -8324,8 +8325,8 @@
             constructor() {
                 this.tokenKey = 'vethelper_token';
                 this.deviceKey = 'vethelper_device_id';
-                this.authURL = 'https://api.vetpodobed.pro/webhook/auth';
-                this.resetURL = 'https://api.vetpodobed.pro/webhook/password-reset';
+                this.authURL = 'https://supa.vetpodobed.pro/functions/v1/calc-auth';
+                this.resetURL = 'https://supa.vetpodobed.pro/functions/v1/calc-password-reset';
             }
 
             /** Генерация device fingerprint */
@@ -8398,7 +8399,7 @@
                 try {
                     response = await fetch(this.authURL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
                         body: JSON.stringify({
                             action: 'register',
                             email,
@@ -8438,7 +8439,7 @@
                 try {
                     response = await fetch(this.authURL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
                         body: JSON.stringify({
                             action: 'verify-email',
                             email,
@@ -8476,7 +8477,7 @@
                 try {
                     response = await fetch(this.authURL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
                         body: JSON.stringify({
                             action: 'resend-code',
                             email
@@ -8508,7 +8509,7 @@
                 try {
                     response = await fetch(this.authURL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
                         body: JSON.stringify({
                             action: 'login',
                             email,
@@ -8548,7 +8549,7 @@
                 try {
                     response = await fetch(this.resetURL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
                         body: JSON.stringify({ action: 'request-reset', email })
                     });
                 } catch {
@@ -8565,7 +8566,7 @@
                 try {
                     response = await fetch(this.resetURL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
                         body: JSON.stringify({ action: 'reset-password', email, code, newPassword })
                     });
                 } catch {
@@ -10639,7 +10640,7 @@
                 if (form) form.addEventListener('submit', (e) => this.handleSubmit(e));
             }
 
-            static FEEDBACK_URL = 'https://api.vetpodobed.pro/webhook/feedback';
+            static FEEDBACK_URL = 'https://supa.vetpodobed.pro/functions/v1/calc-feedback';
 
             async handleSubmit(e) {
                 e.preventDefault();
@@ -10659,7 +10660,7 @@
 
                     await fetch(FeedbackForm.FEEDBACK_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
                         body: JSON.stringify(feedback)
                     });
 
@@ -10993,15 +10994,15 @@
         class AccountAPI {
             constructor(auth) {
                 this.auth = auth;
-                this.baseURL = 'https://api.vetpodobed.pro/webhook/account';
-                this.paymentURL = 'https://api.vetpodobed.pro/webhook/payment';
+                this.baseURL = 'https://supa.vetpodobed.pro/functions/v1/calc-account';
+                this.paymentURL = 'https://supa.vetpodobed.pro/functions/v1/calc-payment';
             }
 
             async _request(action, body = {}) {
                 const response = await fetch(this.baseURL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json', 'apikey': window.CALC_ANON,
                         ...this.auth.getAuthHeader()
                     },
                     body: JSON.stringify({ action, ...body })
@@ -11047,7 +11048,7 @@
                 const response = await fetch(this.paymentURL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
+                        'Content-Type': 'application/json', 'apikey': window.CALC_ANON,
                         ...this.auth.getAuthHeader()
                     },
                     body: JSON.stringify({})
@@ -11657,7 +11658,7 @@
                     const response = await fetch('https://api.vetpodobed.pro/webhook/admin-extend-subscription', {
                         method: 'POST',
                         headers: {
-                            'Content-Type': 'application/json',
+                            'Content-Type': 'application/json', 'apikey': window.CALC_ANON,
                             ...this.app.auth.getAuthHeader()
                         },
                         body: JSON.stringify({ months })
@@ -12542,7 +12543,7 @@
                         this.showLoading();
                         await fetch(FeedbackForm.FEEDBACK_URL, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
+                            headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
                             body: JSON.stringify({
                                 type: 'drug_request',
                                 email: email,
