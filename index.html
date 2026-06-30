@@ -7499,6 +7499,162 @@
         .trial-activate-btn.trial-approved {
             animation: trialActivatePulse 2s infinite;
         }
+
+        /* ============ Настраиваемая панель вкладок: расположение + порядок ============ */
+        /* Привязка областей грид-раскладки (для обоих вариантов «сбоку») */
+        body.layout-side main.main > .container > #installBanner     { grid-area: banner; }
+        body.layout-side main.main > .container > .tabs              { grid-area: tabs; }
+        body.layout-side main.main > .container > #calculatorContent { grid-area: content; min-width: 0; }
+        body.layout-side main.main > .container > #resultSection     { grid-area: result; min-width: 0; }
+
+        /* --- Режим «сбоку» на широких экранах: вертикальная панель слева, с текстом --- */
+        @media (min-width: 769px) {
+            body.layout-side main.main > .container {
+                display: grid;
+                grid-template-columns: minmax(150px, 190px) 1fr;
+                grid-template-areas:
+                    "banner banner"
+                    "tabs   content"
+                    "tabs   result";
+                column-gap: var(--sp-lg);
+                align-items: start;
+            }
+            body.layout-side .tabs {
+                flex-direction: column;
+                overflow: visible;
+                padding: var(--sp-sm) 0 0;
+                position: sticky;
+                top: var(--sp-md);
+            }
+            body.layout-side .tabs .tab { width: 100%; justify-content: flex-start; }
+        }
+
+        /* --- Режим «сбоку» на мобильном: вертикальная лента иконок справа --- */
+        /* В покое — мелкие иконки без подписей; при прокрутке центральная увеличивается и показывает текст */
+        @media (max-width: 768px) {
+            body.layout-side main.main > .container {
+                display: grid;
+                grid-template-columns: 1fr 56px;
+                grid-template-areas:
+                    "banner  banner"
+                    "content tabs"
+                    "result  tabs";
+                column-gap: var(--sp-sm);
+                align-items: start;
+            }
+            body.layout-side .tabs {
+                flex-direction: column;
+                align-items: center;
+                gap: 12px;
+                flex-wrap: nowrap;
+                overflow-y: auto;
+                overflow-x: visible;
+                position: sticky;
+                top: var(--sp-sm);
+                max-height: calc(100vh - 84px);
+                padding: 42vh 0;            /* запас, чтобы крайние иконки доходили до центра */
+                scrollbar-width: none;
+                scroll-snap-type: y proximity;
+                -webkit-overflow-scrolling: touch;
+            }
+            body.layout-side .tabs::-webkit-scrollbar { display: none; }
+            body.layout-side .tabs .tab {
+                width: 44px; height: 44px;
+                min-width: 44px;
+                padding: 0;
+                border-radius: 50%;
+                justify-content: center;
+                flex: 0 0 auto;
+                scroll-snap-align: center;
+                position: relative;
+                transition: transform .18s ease, box-shadow .18s ease;
+                transform-origin: center center;
+            }
+            /* Подписи на ленте показываются не внутри кнопки, а во всплывающем #railLabel (его не обрезает лента) */
+            body.layout-side .tabs .tab span { display: none; }
+            /* Центральная иконка увеличивается только во время прокрутки */
+            body.layout-side.rail-scrolling .tabs .tab.tab--center {
+                transform: scale(1.5);
+                z-index: 3;
+            }
+            body.layout-side.rail-scrolling #railLabel { display: block; }
+        }
+
+        /* Всплывающая подпись центральной иконки ленты (рендерится вне ленты, не обрезается) */
+        #railLabel {
+            display: none;
+            position: fixed;
+            z-index: 1002;
+            background: var(--blue-700);
+            color: #fff;
+            padding: 6px 14px;
+            border-radius: var(--r-full);
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            white-space: nowrap;
+            box-shadow: var(--shadow-sm);
+            pointer-events: none;
+            transform: translateY(-50%);
+            transition: top .1s ease;
+        }
+
+        /* --- Блок «Настройки интерфейса» в Кабинете --- */
+        .iface-settings .iface-label {
+            font-size: var(--fs-sm);
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin: var(--sp-md) 0 var(--sp-xs);
+        }
+        .iface-settings .seg {
+            display: inline-flex;
+            border: 1px solid var(--border);
+            border-radius: var(--r-full);
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+        .iface-settings .seg-btn {
+            padding: var(--sp-sm) var(--sp-lg);
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: var(--fs-sm);
+            color: var(--text-secondary);
+        }
+        .iface-settings .seg-btn--active {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+            color: #fff;
+        }
+        .tab-order-list {
+            list-style: none;
+            margin: var(--sp-xs) 0 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--sp-xs);
+        }
+        .tab-order-item {
+            display: flex;
+            align-items: center;
+            gap: var(--sp-sm);
+            padding: var(--sp-sm) var(--sp-md);
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--r-sm);
+            font-weight: 600;
+            font-size: var(--fs-sm);
+            color: var(--text-primary);
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .tab-order-item.dragging {
+            opacity: .6;
+            border-color: var(--blue-600);
+            box-shadow: var(--shadow-sm);
+        }
+        .tab-order-item .drag-handle { color: var(--text-muted); font-size: 18px; line-height: 1; }
     </style>
 <script>window.CALC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc5MjgyODYzLCJleHAiOjIwOTQ2NDI4NjN9.UXtmCmsdaQoLj6V1_Llw9q9nyXMDHZ72lAOftXQdli0';</script>
 </head>
@@ -7565,7 +7721,7 @@
             </div>
 
             <!-- Tabs -->
-            <nav class="tabs" role="tablist" aria-label="Калькуляторы">
+            <nav class="tabs" id="mainTabs" role="tablist" aria-label="Калькуляторы">
                 <button class="tab active" data-calculator="infusion" role="tab" aria-selected="true" id="tab-infusion">
                     <svg viewBox="0 0 24 24" fill="none">
                         <path d="M12 2V22M8 6H16M8 10H16M8 14H16M8 18H16" stroke="currentColor" stroke-width="2"
@@ -11174,8 +11330,33 @@
                 ${this.renderDevices()}
                 ${this.renderPayments()}
                 ${this.renderInstallApp()}
+                ${this.renderInterfaceSettings()}
                 ${this.renderLogout()}
             `;
+            }
+
+            renderInterfaceSettings() {
+                const prefs = UIPrefs.load();
+                const pos = prefs.position;
+                const items = this.app.getOrderedTabsMeta().map(t => `
+                    <li class="tab-order-item" data-key="${esc(t.key)}">
+                        <span class="drag-handle" aria-hidden="true">⠿</span>
+                        <span>${esc(t.label)}</span>
+                    </li>`).join('');
+                return `
+                <div class="account-section iface-settings">
+                    <h3>⚙️ Настройки интерфейса</h3>
+
+                    <div class="iface-label">Расположение панели вкладок</div>
+                    <div class="seg" id="tabPosSeg">
+                        <button type="button" class="seg-btn ${pos === 'top' ? 'seg-btn--active' : ''}" data-pos="top">▤ Сверху</button>
+                        <button type="button" class="seg-btn ${pos === 'side' ? 'seg-btn--active' : ''}" data-pos="side">▥ Сбоку</button>
+                    </div>
+
+                    <div class="iface-label">Порядок вкладок <span style="font-weight:400;color:var(--text-muted)">— перетащите для изменения</span></div>
+                    <ul class="tab-order-list" id="tabOrderList">${items}</ul>
+                    <button type="button" class="btn-secondary" id="resetTabsBtn" style="margin-top:var(--sp-sm)">Сбросить по умолчанию</button>
+                </div>`;
             }
 
             renderSessionInfo() {
@@ -11620,6 +11801,93 @@
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', () => this.app.auth.logout());
                 }
+
+                // Настройки интерфейса
+                this.initInterfaceSettings();
+            }
+
+            // ─── Настройки интерфейса (порядок вкладок + расположение) ───
+            initInterfaceSettings() {
+                // Расположение панели
+                const seg = document.getElementById('tabPosSeg');
+                if (seg) {
+                    seg.querySelectorAll('[data-pos]').forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            const pos = btn.dataset.pos;
+                            const p = UIPrefs.load();
+                            p.position = pos;
+                            UIPrefs.save(p);
+                            seg.querySelectorAll('[data-pos]').forEach(b =>
+                                b.classList.toggle('seg-btn--active', b.dataset.pos === pos));
+                            this.app.applyTabPosition(pos);
+                        });
+                    });
+                }
+
+                // Перетаскивание порядка вкладок (мышь + сенсор через Pointer Events)
+                const list = document.getElementById('tabOrderList');
+                if (list) this.initTabOrderDnD(list);
+
+                // Сброс к порядку по умолчанию
+                const resetBtn = document.getElementById('resetTabsBtn');
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', () => {
+                        const p = UIPrefs.load();
+                        p.tabOrder = [];
+                        UIPrefs.save(p);
+                        this.app.applyTabOrder();
+                        // Перестроить список настроек под новый порядок
+                        if (list) {
+                            list.innerHTML = this.app.getOrderedTabsMeta().map(t => `
+                                <li class="tab-order-item" data-key="${esc(t.key)}">
+                                    <span class="drag-handle" aria-hidden="true">⠿</span>
+                                    <span>${esc(t.label)}</span>
+                                </li>`).join('');
+                            this.initTabOrderDnD(list);
+                        }
+                        this.app.showToast('Порядок вкладок сброшен');
+                    });
+                }
+            }
+
+            initTabOrderDnD(list) {
+                let dragEl = null;
+                const onMove = (e) => {
+                    if (!dragEl) return;
+                    const after = this.getDragAfterElement(list, e.clientY);
+                    if (after == null) list.appendChild(dragEl);
+                    else list.insertBefore(dragEl, after);
+                };
+                const onUp = () => {
+                    document.removeEventListener('pointermove', onMove);
+                    if (!dragEl) return;
+                    dragEl.classList.remove('dragging');
+                    dragEl = null;
+                    const order = [...list.querySelectorAll('.tab-order-item')].map(li => li.dataset.key);
+                    const p = UIPrefs.load();
+                    p.tabOrder = order;
+                    UIPrefs.save(p);
+                    this.app.applyTabOrder();
+                };
+                list.querySelectorAll('.tab-order-item').forEach(li => {
+                    li.addEventListener('pointerdown', (e) => {
+                        dragEl = li;
+                        li.classList.add('dragging');
+                        e.preventDefault();
+                        document.addEventListener('pointermove', onMove);
+                        document.addEventListener('pointerup', onUp, { once: true });
+                    });
+                });
+            }
+
+            getDragAfterElement(list, y) {
+                const els = [...list.querySelectorAll('.tab-order-item:not(.dragging)')];
+                return els.reduce((closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset) return { offset, element: child };
+                    return closest;
+                }, { offset: -Infinity, element: null }).element;
             }
 
 
@@ -12160,6 +12428,23 @@
             return div.innerHTML;
         }
 
+        // ─── Настройки интерфейса (порядок вкладок + расположение панели) ───
+        const UIPrefs = {
+            KEY: 'vethelper_ui_prefs',
+            DEFAULT_ORDER: ['infusion', 'subcutaneous', 'cri', 'dka', 'dosage', 'drugs', 'feedback', 'faq', 'account'],
+            load() {
+                try {
+                    const p = JSON.parse(localStorage.getItem(this.KEY) || '{}');
+                    return { tabOrder: Array.isArray(p.tabOrder) ? p.tabOrder : [], position: p.position === 'side' ? 'side' : 'top' };
+                } catch {
+                    return { tabOrder: [], position: 'top' };
+                }
+            },
+            save(p) {
+                try { localStorage.setItem(this.KEY, JSON.stringify(p)); } catch { /* приватный режим */ }
+            }
+        };
+
         class VetCalcApp {
             constructor() {
                 this.calculators = {};
@@ -12177,12 +12462,19 @@
                     return;
                 }
 
+                // Применить сохранённые настройки интерфейса до навешивания обработчиков
+                this.applyTabOrder();
+                this.applyTabPosition();
+
                 this.initTabs();
                 this.initResultActions();
                 this.initHistory();
                 this.initOffline();
                 this.initInstall();
                 this.initClinicalSignsToasts();
+
+                // Лента иконок (режим «сбоку» на мобильном): подсветка центральной при прокрутке
+                this.initTabRail();
 
                 // Обработка возврата после оплаты ЮKassa
                 const urlParams = new URLSearchParams(window.location.search);
@@ -12267,8 +12559,96 @@
                         this.currentTab = tab;
                         this.hideResult();
                         this.loadCalculator(tab);
+                        this.scrollActiveTabIntoRail();
                     });
                 });
+            }
+
+            // ─── Настройки интерфейса: порядок и расположение вкладок ───
+
+            // Метаданные вкладок в текущем (видимом) порядке: [{key, label}]
+            getOrderedTabsMeta() {
+                const nav = document.getElementById('mainTabs');
+                if (!nav) return [];
+                return [...nav.querySelectorAll('.tab[data-calculator]')].map(b => ({
+                    key: b.dataset.calculator,
+                    label: (b.querySelector('span')?.textContent || b.dataset.calculator).trim()
+                }));
+            }
+
+            // Переставить кнопки вкладок согласно сохранённому порядку
+            applyTabOrder() {
+                const nav = document.getElementById('mainTabs');
+                if (!nav) return;
+                const saved = UIPrefs.load().tabOrder;
+                const order = (saved && saved.length) ? saved : UIPrefs.DEFAULT_ORDER;
+                const byKey = new Map([...nav.querySelectorAll('.tab[data-calculator]')].map(b => [b.dataset.calculator, b]));
+                const seq = [];
+                order.forEach(k => { if (byKey.has(k)) { seq.push(byKey.get(k)); byKey.delete(k); } });
+                byKey.forEach(b => seq.push(b)); // новые/неучтённые вкладки — в конец
+                seq.forEach(b => nav.appendChild(b));
+            }
+
+            // Применить расположение панели ('top' | 'side')
+            applyTabPosition(pos) {
+                pos = pos || UIPrefs.load().position;
+                document.body.classList.toggle('layout-side', pos === 'side');
+                if (pos === 'side') {
+                    // На мобильной ленте — подвести текущую вкладку к центру
+                    setTimeout(() => this.scrollActiveTabIntoRail(), 60);
+                } else {
+                    document.body.classList.remove('rail-scrolling');
+                }
+            }
+
+            // Прокрутить активную иконку к центру ленты (только узкий экран в режиме «сбоку»)
+            scrollActiveTabIntoRail() {
+                const nav = document.getElementById('mainTabs');
+                if (!nav || window.innerWidth > 768 || !document.body.classList.contains('layout-side')) return;
+                const active = nav.querySelector('.tab.active');
+                if (active && active.scrollIntoView) active.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }
+
+            // Лента иконок: при прокрутке центральная увеличивается + показывает подпись,
+            // через ~1 c после остановки прокрутки всё сворачивается обратно
+            initTabRail() {
+                const nav = document.getElementById('mainTabs');
+                if (!nav) return;
+                let stopTimer = null;
+
+                // Всплывающая подпись (вне ленты, чтобы её не обрезал overflow)
+                let label = document.getElementById('railLabel');
+                if (!label) { label = document.createElement('div'); label.id = 'railLabel'; document.body.appendChild(label); }
+
+                const markCenter = () => {
+                    const box = nav.getBoundingClientRect();
+                    const mid = box.top + box.height / 2;
+                    let best = null, bestDist = Infinity;
+                    nav.querySelectorAll('.tab').forEach(t => {
+                        const r = t.getBoundingClientRect();
+                        const d = Math.abs((r.top + r.height / 2) - mid);
+                        if (d < bestDist) { bestDist = d; best = t; }
+                    });
+                    nav.querySelectorAll('.tab.tab--center').forEach(t => { if (t !== best) t.classList.remove('tab--center'); });
+                    if (best) {
+                        best.classList.add('tab--center');
+                        const r = best.getBoundingClientRect();
+                        label.textContent = (best.querySelector('span')?.textContent || '').trim();
+                        label.style.top = (r.top + r.height / 2) + 'px';
+                        label.style.right = (window.innerWidth - r.left + 12) + 'px';
+                    }
+                };
+
+                nav.addEventListener('scroll', () => {
+                    if (!document.body.classList.contains('layout-side')) return;
+                    document.body.classList.add('rail-scrolling');
+                    markCenter();
+                    clearTimeout(stopTimer);
+                    stopTimer = setTimeout(() => {
+                        document.body.classList.remove('rail-scrolling');
+                        nav.querySelectorAll('.tab.tab--center').forEach(t => t.classList.remove('tab--center'));
+                    }, 1000);
+                }, { passive: true });
             }
 
             loadCalculator(type) {
@@ -12571,12 +12951,16 @@
 
                 const r = data.result;
 
+                // Запомнить поисковый запрос, чтобы подсветить совпавший синоним
+                // даже в путях без явного аргумента (выбор из списка / «назад к списку»)
+                if (data.type === 'drugs') this._lastDrugQuery = (data._params && data._params.query) || '';
+
                 switch (data.type) {
                     case 'infusion': return this.renderInfusion(r);
                     case 'subcutaneous': return this.renderSubcutaneous(r);
                     case 'cri': return this.renderCRI(r);
                     case 'dka': return this.renderDKA(r);
-                    case 'drugs': return this.renderDrug(r);
+                    case 'drugs': return this.renderDrug(r, data._params?.query);
                     case 'dosage': return this.renderDosage(r);
                     default: return '<div class="alert alert-info">Неизвестный тип результата</div>';
                 }
@@ -13100,33 +13484,78 @@
 
             // ─── Рендер: Препараты ────────────────────────────────────
 
-            renderDrug(r) {
+            // Разбить поле aliases (свободный текст) на отдельные названия
+            splitAliases(aliases) {
+                return (aliases || '').split(/[,;/|]+/).map(s => s.trim()).filter(Boolean);
+            }
+
+            // Если препарат нашёлся не по основному имени, а по синониму —
+            // вернуть конкретный синоним, по которому совпало (иначе null)
+            matchedAlias(d, query) {
+                const q = (query || '').trim().toLowerCase();
+                if (!q) return null;
+                if ((d.name || '').toLowerCase().includes(q)) return null; // совпало по имени
+                const hit = this.splitAliases(d.aliases).find(t => t.toLowerCase().includes(q));
+                if (hit) return hit;
+                if ((d.aliases || '').toLowerCase().includes(q)) return query.trim();
+                return null; // нечёткое (trigram) совпадение — точный синоним не определить
+            }
+
+            // Чипы синонимов; совпавший с запросом подсвечивается
+            renderAliasChips(d, query) {
+                const tokens = this.splitAliases(d.aliases);
+                if (!tokens.length) return '';
+                const q = (query || '').trim().toLowerCase();
+                const chips = tokens.map(a => {
+                    const isMatch = q && a.toLowerCase().includes(q);
+                    const style = `display:inline-block;padding:2px 8px;margin:2px;border-radius:999px;font-size:var(--fs-xs);`
+                        + (isMatch
+                            ? `background:var(--blue-700,#1d4ed8);color:#fff;font-weight:600;`
+                            : `background:var(--blue-50,#eff6ff);color:var(--blue-700,#1d4ed8);`);
+                    return `<span style="${style}">${esc(a)}</span>`;
+                }).join('');
+                return `<div class="result-block"><h4>🏷️ Синонимы и торговые названия</h4><div>${chips}</div></div>`;
+            }
+
+            renderDrug(r, query) {
                 if (!r.found) {
                     return `<div class="alert alert-warning">🔍 ${esc(r.message)}</div>`;
                 }
 
                 // Множественные результаты — показать карточки выбора
                 if (r.multiple && r.drugs && r.drugs.length > 1) {
-                    return this.renderDrugList(r.drugs);
+                    return this.renderDrugList(r.drugs, query);
                 }
 
                 // Одиночный результат
                 const d = r.drug;
-                return this.renderDrugDetail(d);
+                return this.renderDrugDetail(d, false, query);
             }
 
-            renderDrugList(drugs) {
+            renderDrugList(drugs, query) {
+                if (query == null) query = this._lastDrugQuery || '';
                 let html = `<h3 class="result-title">💊 Найдено препаратов: ${drugs.length}</h3>`;
                 html += `<p style="color:var(--text-secondary); margin-bottom:var(--sp-md);">Выберите нужный препарат:</p>`;
                 html += `<div class="drug-select-list">`;
+                const q = (query || '').trim().toLowerCase();
                 drugs.forEach((d, i) => {
                     const safeJson = JSON.stringify(d).replace(/'/g, '&#39;').replace(/"/g, '&quot;');
+                    // Превью синонимов: совпавший с запросом — первым и жирным
+                    const tokens = this.splitAliases(d.aliases);
+                    if (q) tokens.sort((a, b) => (b.toLowerCase().includes(q) ? 1 : 0) - (a.toLowerCase().includes(q) ? 1 : 0));
+                    const preview = tokens.slice(0, 4).map(a =>
+                        q && a.toLowerCase().includes(q) ? `<b style="color:var(--blue-700)">${esc(a)}</b>` : esc(a)
+                    ).join(', ');
+                    const aliasLine = preview
+                        ? `<div class="drug-card-aliases" style="font-size:var(--fs-xs);color:var(--text-muted);margin-top:2px">🏷️ ${preview}${tokens.length > 4 ? ' …' : ''}</div>`
+                        : '';
                     html += `
                 <div class="drug-select-card" data-drug-index="${i}" data-drug-json="${safeJson}">
                     <div class="drug-card-icon">💊</div>
                     <div class="drug-card-info">
                         <div class="drug-card-name">${esc(d.name)}</div>
                         <div class="drug-card-action">${esc(d.action)}</div>
+                        ${aliasLine}
                     </div>
                     <div class="drug-card-arrow">
                         <svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px">
@@ -13139,7 +13568,8 @@
                 return html;
             }
 
-            renderDrugDetail(d, showBack) {
+            renderDrugDetail(d, showBack, query) {
+                if (query == null) query = this._lastDrugQuery || '';
                 let html = '';
                 if (showBack) {
                     html += `<button class="drug-back-btn" id="drugBackToList">
@@ -13150,6 +13580,12 @@
             </button>`;
                 }
                 html += `<h3 class="result-title">💊 ${esc(d.name)}</h3>`;
+                // Плашка «нашли по синониму» — снимает путаницу «это другой препарат?»
+                const matched = this.matchedAlias(d, query);
+                if (matched) {
+                    html += `<div style="background:var(--blue-50,#eff6ff);border:1px solid var(--blue-200,#bfdbfe);border-radius:var(--r-sm);padding:var(--sp-sm) var(--sp-md);margin-bottom:var(--sp-md);font-size:var(--fs-sm,13px)">🔎 Вы искали «<strong>${esc(matched)}</strong>» — это синоним / торговое название препарата <strong>${esc(d.name)}</strong></div>`;
+                }
+                html += this.renderAliasChips(d, query);
                 html += `<div class="result-block"><h4>🔍 Действие</h4><p>${esc(d.action)}</p></div>`;
                 html += `<div class="result-block">
             <h4>📋 Дозировки</h4>
