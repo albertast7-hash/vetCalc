@@ -1,5 +1,5 @@
-// VetHelper Service Worker v1.0.0
-const CACHE_NAME = 'vethelper-v1';
+// VetHelper Service Worker v1.1.0
+const CACHE_NAME = 'vethelper-v2';
 const OFFLINE_URL = '/';
 
 // Ресурсы для предварительного кэширования

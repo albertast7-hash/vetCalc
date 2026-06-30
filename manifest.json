@@ -11,7 +11,7 @@
     "standalone",
     "minimal-ui"
   ],
-  "orientation": "any",
+  "orientation": "portrait",
   "dir": "ltr",
   "lang": "ru",
   "background_color": "#e8f5e9",

@@ -7536,18 +7536,18 @@
             body.layout-side main.main > .container { display: block; }  /* контент — на всю ширину, без колонки под ленту */
             body.layout-side main.main > .container > .tabs {
                 position: fixed;
-                right: 4px;
+                right: 0;
                 top: 50%;
                 transform: translateY(-50%);
                 max-height: 100dvh;
                 z-index: 1001;
                 flex-direction: column;
-                align-items: center;
+                align-items: flex-end;       /* иконки прижаты к правому краю экрана */
                 gap: 12px;
                 flex-wrap: nowrap;
                 overflow-y: auto;
-                overflow-x: visible;
-                padding: 6px 0;
+                /* левый отступ — запас, чтобы увеличенная иконка росла внутрь и НЕ обрезалась */
+                padding: 6px 5px 6px 44px;
                 background: transparent;
                 pointer-events: none;        /* пустые зоны ленты пропускают касания к контенту под ней */
                 scrollbar-width: none;
@@ -7566,7 +7566,7 @@
                 scroll-snap-align: center;
                 position: relative;
                 transition: transform .22s ease, opacity .22s ease, box-shadow .22s ease;
-                transform-origin: center right;
+                transform-origin: right center;   /* рост влево, правый край у кромки экрана — не обрезается */
                 box-shadow: 0 2px 10px rgba(15, 23, 42, .14);
             }
             /* Подписи на ленте показываются не внутри кнопки, а во всплывающем #railLabel (его не обрезает лента) */
@@ -7574,25 +7574,25 @@
 
             /* В покое — мелкие «точки», прижатые к краю: почти не перекрывают контент */
             body.layout-side:not(.rail-active) .tabs .tab {
-                transform: translateX(10px) scale(.4);
+                transform: scale(.4);
                 opacity: .45;
                 box-shadow: none;
             }
             /* Текущая вкладка-точка — заметнее (индикатор открытой страницы) */
             body.layout-side:not(.rail-active) .tabs .tab.active {
-                transform: translateX(6px) scale(.55);
+                transform: scale(.55);
                 opacity: 1;
             }
 
             /* При работе с лентой (касание/прокрутка) иконки «выплывают» в полный размер */
             body.layout-side.rail-active .tabs .tab {
-                transform: translateX(0) scale(1);
+                transform: scale(1);
                 opacity: 1;
                 box-shadow: 0 2px 10px rgba(15, 23, 42, .14);
             }
             /* Центральная иконка при прокрутке — увеличивается + показывает подпись */
             body.layout-side.rail-scrolling .tabs .tab.tab--center {
-                transform: translateX(0) scale(1.5);
+                transform: scale(1.5);
                 z-index: 3;
             }
             body.layout-side.rail-scrolling #railLabel { display: block; }
@@ -13193,6 +13193,14 @@
 
                 // Лента иконок (режим «сбоку» на мобильном): подсветка центральной при прокрутке
                 this.initTabRail();
+
+                // Залочить портретную ориентацию (приложение свёрстано под портрет).
+                // Работает в установленном PWA; в обычной вкладке тихо игнорируется.
+                try {
+                    if (screen.orientation && screen.orientation.lock) {
+                        screen.orientation.lock('portrait').catch(() => { });
+                    }
+                } catch (e) { /* не поддерживается — ок */ }
 
                 // Обработка возврата после оплаты ЮKassa
                 const urlParams = new URLSearchParams(window.location.search);
