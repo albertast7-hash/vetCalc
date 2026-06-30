@@ -13733,13 +13733,16 @@
                         this.showLoading();
                         await fetch(FeedbackForm.FEEDBACK_URL, {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'apikey': window.CALC_ANON,
+                                'Authorization': `Bearer ${this.auth ? this.auth.getToken() : ''}`
+                            },
                             body: JSON.stringify({
                                 type: 'drug_request',
                                 email: email,
                                 message: 'Запрос на добавление препарата: ' + drugName,
-                                timestamp: new Date().toISOString(),
-                                userId: this.auth ? this.auth.getUserInfo()?.userId || null : null
+                                timestamp: new Date().toISOString()
                             })
                         });
 
