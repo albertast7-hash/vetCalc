@@ -8024,6 +8024,31 @@
         </div>
     </div>
 
+    <!-- Модалка: название при сохранении в историю (замена prompt — работает в PWA) -->
+    <div id="saveNameModal" class="modal hidden" role="dialog" aria-modal="true" aria-label="Сохранить в историю">
+        <div class="modal-overlay" id="saveNameOverlay"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>💾 Сохранить в историю</h2>
+                <button class="btn-icon" id="saveNameClose" aria-label="Закрыть">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </button>
+            </div>
+            <div class="modal-body" style="padding: var(--sp-lg);">
+                <div class="form-group">
+                    <label for="saveNameInput">Название <span style="color:var(--text-secondary);font-weight:normal">(необязательно)</span></label>
+                    <input type="text" id="saveNameInput" maxlength="60" placeholder="Например: Рекс, 30 кг" autocomplete="off">
+                </div>
+                <div style="display:flex;gap:var(--sp-sm);margin-top:var(--sp-md)">
+                    <button type="button" class="btn-secondary" id="saveNameSkip" style="flex:1">Без названия</button>
+                    <button type="button" class="btn-primary" id="saveNameConfirm" style="flex:1">Сохранить</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Loading Overlay -->
     <div id="loadingOverlay" class="loading-overlay hidden">
         <div class="spinner-ring"></div>
@@ -9872,12 +9897,15 @@
                 if (!this.enough()) return;
                 const rate = (this.shownRate != null) ? this.shownRate : Math.round(this.rate() || 0);
                 if (!rate) return;
-                this.app.history.saveCalculation({
-                    type: 'vitals',
-                    params: { mode: this.mode, rate: rate },
-                    result: { mode: this.mode, rate: rate }
-                }, '');
-                this.app.showToast('✅ Сохранено в историю');
+                const mode = this.mode;
+                this.app.promptSaveName((name) => {
+                    this.app.history.saveCalculation({
+                        type: 'vitals',
+                        params: { mode: mode, rate: rate },
+                        result: { mode: mode, rate: rate }
+                    }, name);
+                    this.app.showToast('✅ Сохранено в историю');
+                });
             }
 
             setMode(mode) {
@@ -10166,12 +10194,14 @@
             saveToHistory() {
                 if (!this.der || !this.lastCalc) return;
                 const lc = this.lastCalc;
-                this.app.history.saveCalculation({
-                    type: 'calories',
-                    params: { species: lc.species, weight: lc.weight, der: lc.der, bcs: lc.bcs },
-                    result: { der: lc.der, rer: lc.rer, factor: lc.factor, ideal: lc.ideal, food: lc.food || null }
-                }, '');
-                this.app.showToast('✅ Сохранено в историю');
+                this.app.promptSaveName((name) => {
+                    this.app.history.saveCalculation({
+                        type: 'calories',
+                        params: { species: lc.species, weight: lc.weight, der: lc.der, bcs: lc.bcs },
+                        result: { der: lc.der, rer: lc.rer, factor: lc.factor, ideal: lc.ideal, food: lc.food || null }
+                    }, name);
+                    this.app.showToast('✅ Сохранено в историю');
+                });
             }
 
             selectSpecies(sp) {
@@ -12742,6 +12772,18 @@
                         title: 'Протокол DKA',
                         text: 'Помощь в подборе скорости введения инсулина в зависимости от текущей глюкозы пациента в кетоацидозе.'
                     },
+                    // ─── ПУЛЬС / ЧДД ───
+                    {
+                        target: '#tab-vitals',
+                        title: 'Пульс и дыхание',
+                        text: 'Измерение ЧСС и ЧДД простукиванием: нажимайте на каждый удар/вдох — частоту приложение посчитает само (за минуту или экстраполяцией). Результат можно сохранить в историю.'
+                    },
+                    // ─── КАЛОРИИ ───
+                    {
+                        target: '#tab-calories',
+                        title: 'Калькулятор калорий',
+                        text: 'Суточная норма энергии (ккал/день) по виду, весу, упитанности (BCS) и жизненному этапу. Можно перевести в граммы корма и сохранить расчёт. Коэффициенты — по Pet Nutrition Alliance и Merck.'
+                    },
                     // ─── ДОЗИРОВКА ───
                     {
                         tab: 'dosage',
@@ -13328,7 +13370,7 @@
                     document.body.classList.add('rail-active');
                     if (scrolling) { document.body.classList.add('rail-scrolling'); markCenter(); }
                     clearTimeout(stopTimer);
-                    stopTimer = setTimeout(collapse, 1500);
+                    stopTimer = setTimeout(collapse, 3000);   // держим развёрнутой дольше
                 };
 
                 nav.addEventListener('scroll', () => {
@@ -13348,6 +13390,23 @@
                     if (this._railWasCollapsed) { e.stopPropagation(); e.preventDefault(); }
                     this._railWasCollapsed = false;
                 }, true);
+
+                // Свайп от правого края к центру — тоже «выплывание» ленты (пассивно, контент не блокируем)
+                let swStartX = null, swStartY = null;
+                document.addEventListener('touchstart', (e) => {
+                    if (!isRailMobile()) { swStartX = null; return; }
+                    const t = e.touches[0];
+                    if (t && t.clientX >= window.innerWidth - 44) { swStartX = t.clientX; swStartY = t.clientY; }
+                    else swStartX = null;
+                }, { passive: true });
+                document.addEventListener('touchmove', (e) => {
+                    if (swStartX == null || !isRailMobile()) return;
+                    const t = e.touches[0];
+                    const dx = swStartX - t.clientX;              // движение влево — положительное
+                    const dy = Math.abs(t.clientY - swStartY);
+                    if (dx > 22 && dx > dy) { activate(false); swStartX = null; }  // горизонтальный свайп влево
+                }, { passive: true });
+                document.addEventListener('touchend', () => { swStartX = null; }, { passive: true });
             }
 
             loadCalculator(type) {
@@ -13546,6 +13605,44 @@
                 });
             }
 
+            // Запросить название для сохранения через модалку (замена prompt, работает в PWA).
+            // onConfirm(name) вызывается при «Сохранить»/«Без названия»; при отмене — не вызывается.
+            promptSaveName(onConfirm) {
+                const modal = document.getElementById('saveNameModal');
+                const input = document.getElementById('saveNameInput');
+                if (!modal || !input) { onConfirm(''); return; } // фолбэк — сохранить без имени
+                input.value = '';
+                modal.classList.remove('hidden');
+                setTimeout(() => { try { input.focus(); } catch (e) { } }, 50);
+
+                const confirmBtn = document.getElementById('saveNameConfirm');
+                const skipBtn = document.getElementById('saveNameSkip');
+                const closeBtn = document.getElementById('saveNameClose');
+                const overlay = document.getElementById('saveNameOverlay');
+
+                const cleanup = () => {
+                    modal.classList.add('hidden');
+                    confirmBtn.removeEventListener('click', onSave);
+                    skipBtn.removeEventListener('click', onSkip);
+                    closeBtn.removeEventListener('click', onCancel);
+                    overlay.removeEventListener('click', onCancel);
+                    input.removeEventListener('keydown', onKey);
+                };
+                const onSave = () => { const n = input.value.trim(); cleanup(); onConfirm(n); };
+                const onSkip = () => { cleanup(); onConfirm(''); };
+                const onCancel = () => { cleanup(); };
+                const onKey = (e) => {
+                    if (e.key === 'Enter') { e.preventDefault(); onSave(); }
+                    else if (e.key === 'Escape') { onCancel(); }
+                };
+
+                confirmBtn.addEventListener('click', onSave);
+                skipBtn.addEventListener('click', onSkip);
+                closeBtn.addEventListener('click', onCancel);
+                overlay.addEventListener('click', onCancel);
+                input.addEventListener('keydown', onKey);
+            }
+
             initResultActions() {
                 const closeBtn = document.getElementById('closeResult');
                 const saveBtn = document.getElementById('saveToHistory');
@@ -13557,33 +13654,32 @@
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                 });
                 if (saveBtn) saveBtn.addEventListener('click', () => {
-                    if (this.lastResult) {
-                        const result = { ...this.lastResult.result };
+                    if (!this.lastResult) return;
+                    const result = { ...this.lastResult.result };
 
-                        // Для инфузии - сохранить актуальные скорости из DOM
-                        if (this.lastResult.type === 'infusion') {
-                            const initialSpeed = document.getElementById('initialSpeed')?.textContent;
-                            const ongoingSpeed = document.getElementById('ongoingSpeed')?.textContent;
-                            const deficitHours = document.getElementById('deficitHours')?.textContent;
+                    // Для инфузии - сохранить актуальные скорости из DOM
+                    if (this.lastResult.type === 'infusion') {
+                        const initialSpeed = document.getElementById('initialSpeed')?.textContent;
+                        const ongoingSpeed = document.getElementById('ongoingSpeed')?.textContent;
+                        const deficitHours = document.getElementById('deficitHours')?.textContent;
 
-                            if (initialSpeed || ongoingSpeed) {
-                                result.rates = {
-                                    initial: initialSpeed || result.rates?.initial,
-                                    ongoing: ongoingSpeed || result.rates?.ongoing
-                                };
-                            }
-                            if (deficitHours) {
-                                result.deficitHours = parseFloat(deficitHours);
-                            }
+                        if (initialSpeed || ongoingSpeed) {
+                            result.rates = {
+                                initial: initialSpeed || result.rates?.initial,
+                                ongoing: ongoingSpeed || result.rates?.ongoing
+                            };
                         }
-
-                        this.history.saveCalculation({
-                            type: this.lastResult.type,
-                            params: this.lastResult._params || {},
-                            result: result
-                        }, '');
-                        this.showToast('✅ Сохранено в историю');
+                        if (deficitHours) {
+                            result.deficitHours = parseFloat(deficitHours);
+                        }
                     }
+
+                    const type = this.lastResult.type;
+                    const params = this.lastResult._params || {};
+                    this.promptSaveName((name) => {
+                        this.history.saveCalculation({ type, params, result }, name);
+                        this.showToast('✅ Сохранено в историю');
+                    });
                 });
 
                 // Кнопка "Запросить добавление препарата"
