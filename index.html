@@ -7529,52 +7529,70 @@
             body.layout-side .tabs .tab { width: 100%; justify-content: flex-start; }
         }
 
-        /* --- Режим «сбоку» на мобильном: вертикальная лента иконок справа --- */
-        /* В покое — мелкие иконки без подписей; при прокрутке центральная увеличивается и показывает текст */
+        /* --- Режим «сбоку» на мобильном: ПЛАВАЮЩАЯ лента иконок справа, по центру вертикали --- */
+        /* Лента не занимает колонку (контент на всю ширину) и не перехватывает тапы по контенту: */
+        /* контейнер pointer-events:none, кликабельны только сами иконки. */
         @media (max-width: 768px) {
-            body.layout-side main.main > .container {
-                display: grid;
-                grid-template-columns: 1fr 56px;
-                grid-template-areas:
-                    "banner  banner"
-                    "content tabs"
-                    "result  tabs";
-                column-gap: var(--sp-sm);
-                align-items: start;
-            }
-            body.layout-side .tabs {
+            body.layout-side main.main > .container { display: block; }  /* контент — на всю ширину, без колонки под ленту */
+            body.layout-side main.main > .container > .tabs {
+                position: fixed;
+                right: 4px;
+                top: 50%;
+                transform: translateY(-50%);
+                max-height: 100dvh;
+                z-index: 1001;
                 flex-direction: column;
                 align-items: center;
                 gap: 12px;
                 flex-wrap: nowrap;
                 overflow-y: auto;
                 overflow-x: visible;
-                position: sticky;
-                top: var(--sp-sm);
-                max-height: calc(100vh - 84px);
-                padding: 42vh 0;            /* запас, чтобы крайние иконки доходили до центра */
+                padding: 6px 0;
+                background: transparent;
+                pointer-events: none;        /* пустые зоны ленты пропускают касания к контенту под ней */
                 scrollbar-width: none;
                 scroll-snap-type: y proximity;
                 -webkit-overflow-scrolling: touch;
             }
-            body.layout-side .tabs::-webkit-scrollbar { display: none; }
+            body.layout-side main.main > .container > .tabs::-webkit-scrollbar { display: none; }
             body.layout-side .tabs .tab {
-                width: 44px; height: 44px;
-                min-width: 44px;
+                pointer-events: auto;        /* интерактивны только сами иконки */
+                width: 42px; height: 42px;
+                min-width: 42px;
                 padding: 0;
                 border-radius: 50%;
                 justify-content: center;
                 flex: 0 0 auto;
                 scroll-snap-align: center;
                 position: relative;
-                transition: transform .18s ease, box-shadow .18s ease;
-                transform-origin: center center;
+                transition: transform .22s ease, opacity .22s ease, box-shadow .22s ease;
+                transform-origin: center right;
+                box-shadow: 0 2px 10px rgba(15, 23, 42, .14);
             }
             /* Подписи на ленте показываются не внутри кнопки, а во всплывающем #railLabel (его не обрезает лента) */
             body.layout-side .tabs .tab span { display: none; }
-            /* Центральная иконка увеличивается только во время прокрутки */
+
+            /* В покое — мелкие «точки», прижатые к краю: почти не перекрывают контент */
+            body.layout-side:not(.rail-active) .tabs .tab {
+                transform: translateX(10px) scale(.4);
+                opacity: .45;
+                box-shadow: none;
+            }
+            /* Текущая вкладка-точка — заметнее (индикатор открытой страницы) */
+            body.layout-side:not(.rail-active) .tabs .tab.active {
+                transform: translateX(6px) scale(.55);
+                opacity: 1;
+            }
+
+            /* При работе с лентой (касание/прокрутка) иконки «выплывают» в полный размер */
+            body.layout-side.rail-active .tabs .tab {
+                transform: translateX(0) scale(1);
+                opacity: 1;
+                box-shadow: 0 2px 10px rgba(15, 23, 42, .14);
+            }
+            /* Центральная иконка при прокрутке — увеличивается + показывает подпись */
             body.layout-side.rail-scrolling .tabs .tab.tab--center {
-                transform: scale(1.5);
+                transform: translateX(0) scale(1.5);
                 z-index: 3;
             }
             body.layout-side.rail-scrolling #railLabel { display: block; }
@@ -7655,6 +7673,91 @@
             box-shadow: var(--shadow-sm);
         }
         .tab-order-item .drag-handle { color: var(--text-muted); font-size: 18px; line-height: 1; }
+
+        /* ── Вкладка «Пульс и дыхание» (tap-метр ЧСС/ЧДД) ── */
+        .vm-modes { display: flex; gap: var(--sp-sm); margin-bottom: var(--sp-md); }
+        .vm-mode-btn {
+            flex: 1;
+            padding: var(--sp-sm) var(--sp-md);
+            border: 1px solid var(--border);
+            border-radius: var(--r-full);
+            background: var(--bg-card);
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-size: var(--fs-sm);
+            cursor: pointer;
+            transition: all var(--t-base);
+        }
+        .vm-mode-btn--active {
+            background: linear-gradient(135deg, var(--blue-600), var(--blue-700));
+            border-color: var(--blue-600);
+            color: #fff;
+        }
+        .vm-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: var(--sp-sm);
+            margin: var(--sp-xs) 0 var(--sp-md);
+        }
+        .vm-stat {
+            background: var(--bg-hover, #f1f5f9);
+            border-radius: var(--r-sm);
+            padding: 10px 6px;
+            text-align: center;
+        }
+        .vm-stat-v { font-size: 26px; font-weight: 800; line-height: 1.1; color: var(--text-primary); }
+        .vm-stat-l { font-size: 11px; color: var(--text-secondary); margin-top: 3px; text-transform: uppercase; letter-spacing: .4px; }
+        .vm-pad {
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            width: 100%;
+            min-height: 190px;
+            border: none;
+            border-radius: 20px;
+            color: #fff;
+            font-size: 38px;
+            font-weight: 800;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: transform .05s, filter .08s;
+        }
+        .vm-pad small { display: block; font-size: 14px; font-weight: 500; opacity: .9; margin-top: 10px; }
+        .vm-pad:active { transform: scale(.985); }
+        .vm-pad.flash { filter: brightness(1.5); }
+        .vm-pad--pulse { background: linear-gradient(160deg, #b91c1c, #ef4444); box-shadow: 0 8px 26px rgba(239, 68, 68, .25); }
+        .vm-pad--resp  { background: linear-gradient(160deg, #0e7490, #14b8a6); box-shadow: 0 8px 26px rgba(20, 184, 166, .25); }
+        .vm-hint { margin-top: var(--sp-md); font-size: 13px; line-height: 1.4; color: var(--text-secondary); text-align: center; min-height: 18px; }
+        .vm-hint.ready { color: #166534; font-weight: 600; }
+        .vm-hint.warn { color: #92400e; background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 8px 10px; }
+
+        /* ── Вкладка «Калории» ── */
+        .cal-check {
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 12px; margin-bottom: var(--sp-md);
+            background: var(--bg-hover, #f1f5f9); border-radius: var(--r-sm);
+            cursor: pointer; font-size: var(--fs-sm);
+        }
+        .cal-check input { width: 18px; height: 18px; flex-shrink: 0; }
+        .cal-bcs { display: flex; gap: 5px; margin: 6px 0; }
+        .cal-bcs-desc { font-size: 12px; min-height: 16px; margin-top: 6px; text-align: center; color: var(--text-secondary); }
+        .cal-unit-row { display: flex; gap: 6px; margin-bottom: var(--sp-sm); }
+        .cal-unit-btn {
+            flex: 1; padding: 6px 4px; border-radius: var(--r-sm);
+            border: 1.5px solid var(--border); background: var(--bg-card);
+            color: var(--text-secondary); font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        .cal-unit-btn--active { border-color: var(--blue-600); background: var(--blue-600); color: #fff; }
+        .cal-note { font-size: 11px; color: var(--text-muted); margin: var(--sp-md) 0 0; text-align: center; line-height: 1.4; }
+        .cal-hero { text-align: center; background: linear-gradient(135deg, #f97316, #ef4444); border-radius: 16px; padding: 20px 16px; color: #fff; }
+        .cal-hero-v { font-size: 48px; font-weight: 800; line-height: 1; }
+        .cal-hero-l { font-size: 15px; font-weight: 500; margin-top: 4px; opacity: .9; }
+        .cal-details { background: var(--bg-hover, #f1f5f9); border-radius: 12px; padding: 12px 14px; font-size: 13px; color: var(--text-secondary); line-height: 1.8; margin-top: 12px; }
+        .cal-grams-box { text-align: center; padding: 14px; background: #f0fdf4; border: 1px solid #86efac; border-radius: 12px; }
     </style>
 <script>window.CALC_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzc5MjgyODYzLCJleHAiOjIwOTQ2NDI4NjN9.UXtmCmsdaQoLj6V1_Llw9q9nyXMDHZ72lAOftXQdli0';</script>
 </head>
@@ -7756,6 +7859,20 @@
                             stroke-linecap="round" />
                     </svg>
                     <span>DKA</span>
+                </button>
+                <button class="tab" data-calculator="vitals" role="tab" aria-selected="false" id="tab-vitals">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M3 12H7L9 7L13 17L15 12H21" stroke="currentColor" stroke-width="2"
+                            stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <span>Пульс/ЧДД</span>
+                </button>
+                <button class="tab" data-calculator="calories" role="tab" aria-selected="false" id="tab-calories">
+                    <svg viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C12 2 6 6.5 6 13a6 6 0 0 0 12 0c0-2.2-1-3.8-2-5.2 0 1.6-1 2.7-2 2.7 0-3.2-2-6.4-2-8.5Z"
+                            stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    </svg>
+                    <span>Калории</span>
                 </button>
                 <button class="tab" data-calculator="dosage" role="tab" aria-selected="false" id="tab-dosage">
                     <svg viewBox="0 0 24 24" fill="none">
@@ -8344,7 +8461,9 @@
                     'cri': '⏱ ИПС',
                     'dka': '🩸 DKA',
                     'drugs': '💊 Препарат',
-                    'dosage': '💊 Дозировка'
+                    'dosage': '💊 Дозировка',
+                    'vitals': '🫀 Пульс/ЧДД',
+                    'calories': '🔥 Калории'
                 };
                 return names[type] || type;
             }
@@ -8364,6 +8483,10 @@
                         return `🔍 ${esc(p.query || '')}`;
                     case 'dosage':
                         return `${p.animalType === 'dog' ? '🐕 Собака' : '🐈 Кошка'}, ${p.weight} кг, ${esc(p.drugName || 'Препарат')} ${p.doseMgKg} мг/кг`;
+                    case 'vitals':
+                        return p.mode === 'resp' ? `🫁 ЧДД ${p.rate} /мин` : `🥁 Пульс ${p.rate} уд/мин`;
+                    case 'calories':
+                        return `${p.species === 'cat' ? '🐈 Кошка' : '🐕 Собака'}, ${p.weight} кг → ${p.der} ккал/день`;
                     default:
                         return 'Расчёт';
                 }
@@ -8462,6 +8585,20 @@
                         if (r.course) {
                             text += `\nКурс: ${r.course.totalUnits} ${r.course.isLiquid ? 'мл' : 'шт.'}`;
                         }
+                        return text;
+                    }
+                    case 'vitals': {
+                        const rate = item.result?.rate;
+                        return item.params.mode === 'resp'
+                            ? `🫁 Частота дыхания: ${rate} вдохов/мин`
+                            : `🥁 Пульс: ${rate} уд/мин`;
+                    }
+                    case 'calories': {
+                        const rr = item.result || {};
+                        let text = `🔥 Суточная норма: ${rr.der} ккал/день`;
+                        if (rr.rer) text += `\nRER ${rr.rer} ккал × коэффициент ${rr.factor}`;
+                        if (rr.ideal && item.params.bcs !== 5) text += `\nИдеальный вес (BCS ${item.params.bcs}): ${rr.ideal} кг`;
+                        if (rr.food) text += `\nКорм ${rr.food.kcalPer100} ккал/100г → ${rr.food.gramsPerDay} г/день (по ${rr.food.perMeal} г × ${rr.food.meals})`;
                         return text;
                     }
                     default:
@@ -9651,6 +9788,497 @@
         }
 
         window.DrugSearch = DrugSearch;
+
+        /**
+         * VetHelper — Tap-метр пульса (ЧСС) и дыхания (ЧДД)
+         * Полностью клиентский инструмент: считает частоту простукиванием.
+         * Логика: span ≥ 60 с → прямой клинический счёт за минуту; < 60 с → экстраполяция
+         * (n-1)/span×60. Для дыхания — оценка «неровности» по коэффициенту вариации интервалов.
+         */
+        const VM_CFG = {
+            pulse: {
+                padMain: 'УДАР', padSub: 'нажимайте на каждый удар', cls: 'vm-pad--pulse',
+                sub: 'Нащупайте пульс (внутренняя сторона бедра) и нажимайте на каждый удар — частоту посчитаем сами.'
+            },
+            resp: {
+                padMain: 'ВДОХ', padSub: 'нажимайте на каждый вдох', cls: 'vm-pad--resp',
+                sub: 'Лучше всего — когда питомец спит. Нажимайте на каждый вдох (подъём грудной клетки).'
+            }
+        };
+
+        class VitalsMeter {
+            constructor(app) {
+                this.app = app;
+                this.mode = 'pulse';
+                this.t0 = 0;
+                this.taps = [];
+                this.timer = null;
+                this.wake = null;
+                this.shownRate = null;
+            }
+
+            render() {
+                const c = VM_CFG[this.mode];
+                return `
+            <div class="calculator-card">
+                <h2>
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M3 12H7L9 7L13 17L15 12H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    Пульс и дыхание
+                </h2>
+
+                <div class="vm-modes">
+                    <button type="button" class="vm-mode-btn ${this.mode === 'pulse' ? 'vm-mode-btn--active' : ''}" data-vm-mode="pulse">🥁 Пульс (ЧСС)</button>
+                    <button type="button" class="vm-mode-btn ${this.mode === 'resp' ? 'vm-mode-btn--active' : ''}" data-vm-mode="resp">🫁 Дыхание (ЧДД)</button>
+                </div>
+
+                <div class="vm-stats">
+                    <div class="vm-stat"><div class="vm-stat-v" id="vm-count">0</div><div class="vm-stat-l">отметок</div></div>
+                    <div class="vm-stat"><div class="vm-stat-v" id="vm-elapsed">0:00</div><div class="vm-stat-l">время</div></div>
+                    <div class="vm-stat"><div class="vm-stat-v" id="vm-rate">—</div><div class="vm-stat-l">в минуту</div></div>
+                </div>
+
+                <button type="button" id="vm-pad" class="vm-pad ${c.cls}">
+                    <span id="vm-pad-main">СТАРТ</span>
+                    <small id="vm-pad-sub">${esc(c.padSub)}</small>
+                </button>
+
+                <div class="vm-hint" id="vm-hint">${esc(c.sub)}</div>
+                <div style="display:flex;gap:var(--sp-sm);margin-top:var(--sp-md)">
+                    <button type="button" class="btn-secondary" id="vm-reset" style="flex:1">Сброс</button>
+                    <button type="button" class="btn-primary" id="vm-save" style="flex:1" disabled>💾 В историю</button>
+                </div>
+            </div>`;
+            }
+
+            init() {
+                // Свежий старт при каждом входе на вкладку (инстанс кэшируется)
+                this.stopTimer();
+                this.t0 = 0; this.taps = []; this.shownRate = null;
+
+                const pad = document.getElementById('vm-pad');
+                if (pad) pad.addEventListener('click', () => this.tap());
+                document.querySelectorAll('[data-vm-mode]').forEach(b =>
+                    b.addEventListener('click', () => this.setMode(b.dataset.vmMode)));
+                const reset = document.getElementById('vm-reset');
+                if (reset) reset.addEventListener('click', () => this.reset());
+                const save = document.getElementById('vm-save');
+                if (save) save.addEventListener('click', () => this.save());
+                this.updateUI();
+            }
+
+            save() {
+                if (!this.enough()) return;
+                const rate = (this.shownRate != null) ? this.shownRate : Math.round(this.rate() || 0);
+                if (!rate) return;
+                this.app.history.saveCalculation({
+                    type: 'vitals',
+                    params: { mode: this.mode, rate: rate },
+                    result: { mode: this.mode, rate: rate }
+                }, '');
+                this.app.showToast('✅ Сохранено в историю');
+            }
+
+            setMode(mode) {
+                if (!VM_CFG[mode] || mode === this.mode) return;
+                this.mode = mode;
+                this.stopTimer();
+                this.t0 = 0; this.taps = []; this.shownRate = null;
+                const container = document.getElementById('calculatorContent');
+                if (container) { container.innerHTML = this.render(); this.init(); }
+            }
+
+            tap() {
+                const now = Date.now();
+                if (!this.taps.length) {
+                    this.t0 = now;
+                    const m = document.getElementById('vm-pad-main');
+                    if (m) m.textContent = VM_CFG[this.mode].padMain;
+                    this.timer = setInterval(() => this.tick(), 200);
+                    this.reqWake();
+                }
+                this.taps.push(now);
+                if (navigator.vibrate) { try { navigator.vibrate(20); } catch (e) { } }
+                const pad = document.getElementById('vm-pad');
+                if (pad) { pad.classList.add('flash'); setTimeout(() => pad.classList.remove('flash'), 80); }
+                this.updateUI();
+            }
+
+            // Частота: ≥60 с — прямой счёт за первую минуту; иначе экстраполяция
+            rate() {
+                const n = this.taps.length;
+                if (n < 2) return null;
+                const t0 = this.taps[0];
+                const span = (this.taps[n - 1] - t0) / 1000;
+                if (span <= 0) return null;
+                if (span >= 60) {
+                    let cnt = 0;
+                    for (let i = 0; i < n; i++) { if (this.taps[i] - t0 <= 60000) cnt++; }
+                    return cnt;
+                }
+                return (n - 1) / span * 60;
+            }
+
+            spanSec() {
+                const t = this.taps;
+                if (t.length < 2) return 0;
+                return (t[t.length - 1] - t[0]) / 1000;
+            }
+
+            // Коэффициент вариации интервалов — «неровность» дыхания (для пульса не используется)
+            intervalCV() {
+                const t = this.taps;
+                if (t.length < 8) return null;
+                const iv = [];
+                for (let i = 1; i < t.length; i++) iv.push(t[i] - t[i - 1]);
+                const mean = iv.reduce((a, b) => a + b, 0) / iv.length;
+                if (mean <= 0) return null;
+                const varc = iv.reduce((a, b) => a + (b - mean) * (b - mean), 0) / iv.length;
+                return Math.sqrt(varc) / mean;
+            }
+
+            irregular() {
+                if (this.mode !== 'resp') return false;
+                const cv = this.intervalCV();
+                return cv != null && cv > 0.30;
+            }
+
+            enough() {
+                return this.taps.length >= 6 && this.spanSec() >= 8;
+            }
+
+            updateUI() {
+                const cnt = document.getElementById('vm-count');
+                if (!cnt) return; // вкладку закрыли
+                const n = this.taps.length;
+                cnt.textContent = n;
+
+                const rr = (n >= 3) ? this.rate() : null;
+                this.shownRate = (rr != null) ? Math.round(rr) : null;
+                const rEl = document.getElementById('vm-rate');
+                if (rEl) rEl.textContent = (this.shownRate != null) ? this.shownRate : '—';
+
+                const saveBtn = document.getElementById('vm-save');
+                if (saveBtn) saveBtn.disabled = !this.enough();
+
+                const span = this.spanSec();
+                const hint = document.getElementById('vm-hint');
+                if (!hint) return;
+                const word = this.mode === 'pulse' ? 'удар' : 'вдох';
+                if (n === 0) {
+                    hint.textContent = VM_CFG[this.mode].sub; hint.className = 'vm-hint';
+                } else if (!this.enough()) {
+                    hint.textContent = 'Считаем… продолжайте отмечать каждый ' + word + '.'; hint.className = 'vm-hint';
+                } else if (this.irregular()) {
+                    hint.textContent = 'Дыхание неровное — питомец, похоже, не в покое. Для надёжного результата измерьте, когда он спит.'; hint.className = 'vm-hint warn';
+                } else if (span < 60) {
+                    hint.textContent = 'Результат готов (оценка). Точнее — досчитать до минуты (ещё ' + Math.max(1, Math.ceil(60 - span)) + ' с).'; hint.className = 'vm-hint ready';
+                } else {
+                    hint.textContent = '✓ Полная минута — точный результат: ' + (this.shownRate != null ? this.shownRate : n) + '.'; hint.className = 'vm-hint ready';
+                }
+            }
+
+            tick() {
+                if (!document.getElementById('vm-count')) { this.stopTimer(); return; } // ушли с вкладки
+                if (this.t0) {
+                    const s = Math.floor((Date.now() - this.t0) / 1000);
+                    const el = document.getElementById('vm-elapsed');
+                    if (el) el.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+                }
+                this.updateUI();
+            }
+
+            reset() {
+                this.stopTimer();
+                this.t0 = 0; this.taps = []; this.shownRate = null;
+                const el = document.getElementById('vm-elapsed'); if (el) el.textContent = '0:00';
+                const m = document.getElementById('vm-pad-main'); if (m) m.textContent = 'СТАРТ';
+                const s = document.getElementById('vm-pad-sub'); if (s) s.textContent = VM_CFG[this.mode].padSub;
+                this.updateUI();
+            }
+
+            stopTimer() {
+                if (this.timer) { clearInterval(this.timer); this.timer = null; }
+                this.relWake();
+            }
+
+            async reqWake() {
+                try { if ('wakeLock' in navigator) this.wake = await navigator.wakeLock.request('screen'); } catch (e) { }
+            }
+            relWake() {
+                try { if (this.wake) { this.wake.release(); this.wake = null; } } catch (e) { }
+            }
+        }
+
+        window.VitalsMeter = VitalsMeter;
+
+        /**
+         * VetHelper — Калькулятор суточной нормы калорий (RER/DER)
+         * RER = 70 × (идеальный вес, кг)^0.75; DER = RER × коэффициент этапа/активности.
+         * Идеальный вес корректируется по BCS (каждая единица от 5 ≈ ±10% массы).
+         * Опционально — пересчёт в граммы корма по его калорийности и кратности кормления.
+         */
+        // Коэффициенты DER = X × RER. Источник: Pet Nutrition Alliance (AAHA/AAVN/AVMA) +
+        // Merck Veterinary Manual. Взрослое поддержание зависит от статуса кастрации (отдельная
+        // галочка) — поэтому это объект {intact, neutered}; остальные этапы по источнику не
+        // делятся по кастрации и заданы одним числом.
+        const CAL_FACTORS = {
+            dog: {
+                adult:        { intact: 1.8, neutered: 1.6 },
+                inactive:     1.4,   // склонный к полноте / малоактивный (PNA 1.2–1.4)
+                weight_loss:  1.0,   // по идеальному (целевому) весу
+                growth_young: 3.0,   // рост до 4 мес
+                growth_old:   2.0,   // рост 4 мес – взрослый
+                gestation:    1.8,   // беременность (PNA 1.6–2.0)
+                lactation:    3.0,   // лактация (PNA 2–6, зависит от помёта)
+                critical:     1.0
+            },
+            cat: {
+                adult:        { intact: 1.4, neutered: 1.2 },
+                inactive:     1.0,
+                weight_loss:  1.0,   // PNA 0.8–1.0
+                growth_young: 2.5,   // котёнок (Merck 2.5)
+                growth_old:   2.0,
+                gestation:    2.5,   // беременность (PNA 2–3)
+                lactation:    3.0,   // лактация (PNA 2–6)
+                critical:     1.0
+            }
+        };
+        const CAL_BCS_LABELS = ['', 'BCS 1 — крайнее истощение', 'BCS 2 — истощение', 'BCS 3 — худой', 'BCS 4 — ниже нормы', 'BCS 5 — идеальный вес ✓', 'BCS 6 — чуть выше нормы', 'BCS 7 — лишний вес', 'BCS 8 — ожирение', 'BCS 9 — тяжёлое ожирение'];
+        const CAL_BCS_COLORS = [null,
+            { bg: '#fef2f2', border: '#fca5a5', color: '#dc2626' }, { bg: '#fef2f2', border: '#fca5a5', color: '#dc2626' },
+            { bg: '#fff7ed', border: '#fed7aa', color: '#ea580c' }, { bg: '#fefce8', border: '#fde047', color: '#b45309' },
+            { bg: '#f0fdf4', border: '#86efac', color: '#16a34a' }, { bg: '#fefce8', border: '#fde047', color: '#b45309' },
+            { bg: '#fff7ed', border: '#fed7aa', color: '#ea580c' }, { bg: '#fef2f2', border: '#fca5a5', color: '#dc2626' },
+            { bg: '#fef2f2', border: '#fca5a5', color: '#dc2626' }
+        ];
+        // Жизненные этапы (статус кастрации — отдельная галочка, влияет на «Взрослый — поддержание»)
+        const CAL_STAGES = [
+            ['adult', 'Взрослый — поддержание'],
+            ['inactive', 'Малоактивный / склонен к полноте'],
+            ['weight_loss', 'Снижение веса (по идеальному весу)'],
+            ['growth_young', 'Рост — до 4 мес'],
+            ['growth_old', 'Рост — 4 мес до взрослого'],
+            ['gestation', 'Беременность'],
+            ['lactation', 'Лактация'],
+            ['critical', 'Критическое состояние / стационар']
+        ];
+
+        class CalorieCalculator {
+            constructor(app) {
+                this.app = app;
+                this.species = 'dog';
+                this.bcs = 5;
+                this.der = 0;
+                this.foodUnit = '100g';
+                this.lastCalc = null;
+            }
+
+            render() {
+                const stages = CAL_STAGES.map(([v, t]) => `<option value="${v}">${esc(t)}</option>`).join('');
+                return `
+            <div class="calculator-card">
+                <h2>
+                    <svg class="card-icon" viewBox="0 0 24 24" fill="none">
+                        <path d="M12 2C12 2 6 6.5 6 13a6 6 0 0 0 12 0c0-2.2-1-3.8-2-5.2 0 1.6-1 2.7-2 2.7 0-3.2-2-6.4-2-8.5Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round" />
+                    </svg>
+                    Расчёт калорий
+                </h2>
+
+                <div class="vm-modes" style="margin-bottom:var(--sp-md)">
+                    <button type="button" class="vm-mode-btn ${this.species === 'dog' ? 'vm-mode-btn--active' : ''}" data-cal-species="dog">🐕 Собака</button>
+                    <button type="button" class="vm-mode-btn ${this.species === 'cat' ? 'vm-mode-btn--active' : ''}" data-cal-species="cat">🐈 Кошка</button>
+                </div>
+
+                <div class="form-group">
+                    <label for="cal_weight">Вес (кг)</label>
+                    <input type="number" id="cal_weight" min="0.5" max="150" step="0.1" placeholder="4.5">
+                </div>
+
+                <label class="cal-check">
+                    <input type="checkbox" id="cal_neutered">
+                    <span>Кастрирован / стерилизован</span>
+                </label>
+
+                <div class="form-group">
+                    <label>Упитанность — BCS (1–9)</label>
+                    <div class="cal-bcs" id="cal-bcs"></div>
+                    <div class="cal-bcs-desc" id="cal-bcs-desc"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="cal_stage">Жизненный этап</label>
+                    <select id="cal_stage">${stages}</select>
+                </div>
+
+                <button type="button" class="btn-primary btn-submit" id="cal-calc" style="width:100%">Рассчитать</button>
+
+                <div id="cal-result" style="display:none;margin-top:var(--sp-lg)">
+                    <div id="cal-result-card"></div>
+
+                    <div class="result-block" style="margin-top:var(--sp-md)">
+                        <h4>🍽️ Перевод в граммы корма</h4>
+                        <div class="cal-unit-row">
+                            <button type="button" class="cal-unit-btn cal-unit-btn--active" data-cal-unit="100g">ккал/100&nbsp;г</button>
+                            <button type="button" class="cal-unit-btn" data-cal-unit="kg">ккал/кг</button>
+                            <button type="button" class="cal-unit-btn" data-cal-unit="g">ккал/г</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="cal-food">Калорийность корма (с упаковки)</label>
+                            <input type="number" id="cal-food" min="0" placeholder="350">
+                        </div>
+                        <div class="form-group">
+                            <label for="cal-meals">Кратность кормления</label>
+                            <select id="cal-meals">
+                                <option value="1">1 раз</option>
+                                <option value="2" selected>2 раза</option>
+                                <option value="3">3 раза</option>
+                                <option value="4">4 раза</option>
+                            </select>
+                        </div>
+                        <div id="cal-grams"></div>
+                    </div>
+
+                    <p class="cal-note">Ориентировочный расчёт — корректируйте по динамике веса и упитанности.</p>
+                    <button type="button" class="btn-primary" id="cal-save" style="width:100%;margin-top:var(--sp-xs)">💾 Сохранить в историю</button>
+                </div>
+            </div>`;
+            }
+
+            init() {
+                this.der = 0;
+                document.querySelectorAll('[data-cal-species]').forEach(b =>
+                    b.addEventListener('click', () => this.selectSpecies(b.dataset.calSpecies)));
+                const calcBtn = document.getElementById('cal-calc');
+                if (calcBtn) calcBtn.addEventListener('click', () => this.calc());
+                document.querySelectorAll('[data-cal-unit]').forEach(b =>
+                    b.addEventListener('click', () => this.setFoodUnit(b.dataset.calUnit)));
+                const food = document.getElementById('cal-food');
+                if (food) food.addEventListener('input', () => this.calcGrams());
+                const meals = document.getElementById('cal-meals');
+                if (meals) meals.addEventListener('change', () => this.calcGrams());
+                const save = document.getElementById('cal-save');
+                if (save) save.addEventListener('click', () => this.saveToHistory());
+                this.renderBcs();
+            }
+
+            saveToHistory() {
+                if (!this.der || !this.lastCalc) return;
+                const lc = this.lastCalc;
+                this.app.history.saveCalculation({
+                    type: 'calories',
+                    params: { species: lc.species, weight: lc.weight, der: lc.der, bcs: lc.bcs },
+                    result: { der: lc.der, rer: lc.rer, factor: lc.factor, ideal: lc.ideal, food: lc.food || null }
+                }, '');
+                this.app.showToast('✅ Сохранено в историю');
+            }
+
+            selectSpecies(sp) {
+                if (sp !== 'dog' && sp !== 'cat') return;
+                this.species = sp;
+                document.querySelectorAll('[data-cal-species]').forEach(b =>
+                    b.classList.toggle('vm-mode-btn--active', b.dataset.calSpecies === sp));
+            }
+
+            renderBcs() {
+                const box = document.getElementById('cal-bcs');
+                if (!box) return;
+                box.textContent = '';
+                for (let i = 1; i <= 9; i++) {
+                    const c = CAL_BCS_COLORS[i];
+                    const active = i === this.bcs;
+                    const btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.textContent = i;
+                    btn.style.cssText = 'flex:1;padding:8px 2px;border-radius:8px;font-size:13px;cursor:pointer;'
+                        + 'border:2px solid ' + (active ? c.border : 'transparent') + ';'
+                        + 'background:' + (active ? c.bg : 'var(--bg-hover,#f1f5f9)') + ';'
+                        + 'color:' + (active ? c.color : 'var(--text-secondary)') + ';'
+                        + 'font-weight:' + (active ? '700' : '400') + ';';
+                    btn.addEventListener('click', () => { this.bcs = i; this.renderBcs(); });
+                    box.appendChild(btn);
+                }
+                const desc = document.getElementById('cal-bcs-desc');
+                if (desc) {
+                    const c = CAL_BCS_COLORS[this.bcs];
+                    desc.textContent = CAL_BCS_LABELS[this.bcs] || '';
+                    desc.style.color = c ? c.color : 'var(--text-secondary)';
+                }
+            }
+
+            calc() {
+                const weight = parseFloat(document.getElementById('cal_weight').value);
+                if (!weight || weight <= 0) { this.app.showToast('Введите вес питомца'); return; }
+
+                const neutered = document.getElementById('cal_neutered').checked;
+                const stage = document.getElementById('cal_stage').value;
+                const factors = CAL_FACTORS[this.species] || CAL_FACTORS.dog;
+                const row = factors[stage] || factors.adult;
+                // adult — объект {intact,neutered} (зависит от галочки); прочие этапы — одно число
+                const factor = (typeof row === 'object') ? row[neutered ? 'neutered' : 'intact'] : row;
+
+                // Коррекция идеального веса по BCS (каждая единица от 5 ≈ 10% массы)
+                let ideal = weight;
+                if (this.bcs > 5) ideal = weight / (1 + (this.bcs - 5) * 0.10);
+                else if (this.bcs < 5) ideal = weight / (1 - (5 - this.bcs) * 0.10);
+                ideal = Math.max(0.5, Math.round(ideal * 10) / 10);
+
+                const rer = Math.round(70 * Math.pow(ideal, 0.75));
+                const der = Math.round(rer * factor);
+                this.der = der;
+                this.lastCalc = { species: this.species, weight: weight, neutered: neutered, bcs: this.bcs, rer: rer, factor: +factor.toFixed(1), ideal: ideal, der: der, food: null };
+
+                const card = document.getElementById('cal-result-card');
+                let rows = ['Базовый обмен (RER): ' + rer + ' ккал', 'Коэффициент: × ' + factor.toFixed(1)];
+                if (this.bcs !== 5) rows.push('Скорр. вес по BCS ' + this.bcs + ': ' + ideal + ' кг');
+                card.innerHTML =
+                    '<div class="cal-hero"><div class="cal-hero-v">' + der + '</div><div class="cal-hero-l">ккал в день</div></div>'
+                    + '<div class="cal-details">' + rows.map(r => '<div>' + esc(r) + '</div>').join('') + '</div>';
+
+                document.getElementById('cal-result').style.display = 'block';
+                document.getElementById('cal-food').value = '';
+                document.getElementById('cal-grams').textContent = '';
+            }
+
+            setFoodUnit(unit) {
+                this.foodUnit = unit;
+                const ph = { '100g': '350', 'kg': '3500', 'g': '3.5' }[unit] || '';
+                document.querySelectorAll('[data-cal-unit]').forEach(b =>
+                    b.classList.toggle('cal-unit-btn--active', b.dataset.calUnit === unit));
+                const inp = document.getElementById('cal-food');
+                if (inp) { inp.placeholder = ph; inp.value = ''; }
+                const g = document.getElementById('cal-grams');
+                if (g) g.textContent = '';
+            }
+
+            calcGrams() {
+                if (!this.der) return;
+                const raw = parseFloat(document.getElementById('cal-food').value);
+                const g = document.getElementById('cal-grams');
+                g.textContent = '';
+                if (!raw || raw <= 0) return;
+
+                let kcalPer100;
+                if (this.foodUnit === 'kg') kcalPer100 = raw / 10;
+                else if (this.foodUnit === 'g') kcalPer100 = raw * 100;
+                else kcalPer100 = raw;
+                if (kcalPer100 <= 0) return;
+
+                const gramsPerDay = Math.round(this.der * 100 / kcalPer100);
+                const meals = parseInt(document.getElementById('cal-meals').value, 10) || 2;
+                const perMeal = Math.round(gramsPerDay / meals);
+                if (this.lastCalc) this.lastCalc.food = { kcalPer100: Math.round(kcalPer100), gramsPerDay: gramsPerDay, perMeal: perMeal, meals: meals };
+
+                g.innerHTML =
+                    '<div class="cal-grams-box"><div style="font-size:36px;font-weight:800;color:#15803d;line-height:1">' + gramsPerDay + ' г</div>'
+                    + '<div style="font-size:13px;color:#166534;margin-top:3px">в день</div>'
+                    + '<div style="margin-top:8px;background:#fff;border:1px solid #86efac;border-radius:8px;padding:5px 12px;display:inline-block;font-size:12px;color:#166534">'
+                    + meals + ' корм. — по ' + perMeal + ' г</div></div>';
+            }
+        }
+
+        window.CalorieCalculator = CalorieCalculator;
 
         /**
          * VetCalc Pro — Dosage Calculator
@@ -11019,6 +11647,54 @@
                             <p>Для работы необходимо указать вид животного и вес. В поле «препарат» по умолчанию стоит «ввести вручную». Если вы выберете «сохранить препарат», он будет предлагаться вам в подменю поля «препарат». Также есть возможность из списка «мои препараты» переносить рассчитанные уже на вид и вес животного препараты в лист назначений (необходимо нажать значок плюса). Если вы передумали делить таблетку именно так, всё можно поменять, нажав на название препарата в листе назначения.</p>
                             <p><em>*Сохраненные препараты хранятся только на вашем устройстве и не переносятся на другое устройство даже если вы войдете под своим аккаунтом. При удалении данных в браузере информация в «мои препараты» также будет стерта.*</em></p>
                             <p>Если вам понравился функционал и вы хотите что бы список ваших препаратов (тех, которые вы добавили) был привязан к аккаунту и не мог нечаянно пропасть - напишите нам и мы реализуем при первой возможности (вернее при наличии достаточного количества заявок 😉).</p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;flex-shrink:0;">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                                <path d="M9.09 9A3 3 0 0 1 12 6C13.66 6 15 7.34 15 9C15 10.5 14 11.5 12.5 12C12.22 12.15 12 12.42 12 12.75V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="currentColor" stroke-width="1" />
+                            </svg>
+                            <span>Вкладка: Пульс/ЧДД / Подсчёт пульса и дыхания</span>
+                            <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;flex-shrink:0;">
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Инструмент для измерения <strong>пульса (ЧСС)</strong> и <strong>частоты дыхания (ЧДД)</strong> простукиванием — частоту приложение считает само. Переключите режим (🥁 Пульс / 🫁 Дыхание) и нажимайте на большую кнопку при каждом ударе/вдохе.</p>
+                            <ul style="padding-left: 20px; margin-bottom: 15px;">
+                                <li>Если простукивать <strong>меньше минуты</strong> — приложение даёт оценку (экстраполяцию); если довести <strong>до 60 секунд</strong> — показывается точный клинический подсчёт за минуту.</li>
+                                <li>Для дыхания приложение подсказывает, если ритм <strong>неровный</strong> (питомец, скорее всего, не в покое — точнее измерять, когда он спит).</li>
+                                <li>Результат можно <strong>сохранить в Историю</strong> (кнопка «💾 В историю» доступна, когда набрано достаточно отметок).</li>
+                            </ul>
+                            <p><em>Расчёт идёт прямо на устройстве и работает без интернета.</em></p>
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <div class="faq-question">
+                            <svg viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;flex-shrink:0;">
+                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+                                <path d="M9.09 9A3 3 0 0 1 12 6C13.66 6 15 7.34 15 9C15 10.5 14 11.5 12.5 12C12.22 12.15 12 12.42 12 12.75V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+                                <circle cx="12" cy="17" r="0.5" fill="currentColor" stroke="currentColor" stroke-width="1" />
+                            </svg>
+                            <span>Вкладка: Калории / Суточная норма энергии</span>
+                            <svg class="faq-arrow" viewBox="0 0 24 24" fill="none" style="width:20px;height:20px;flex-shrink:0;">
+                                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <div class="faq-answer">
+                            <p>Калькулятор суточной потребности в энергии. Сначала считается <strong>RER</strong> (энергия покоя) по формуле <strong>70 × (вес, кг)<sup>0,75</sup></strong>, затем умножается на <strong>коэффициент жизненного этапа</strong> → получается <strong>DER</strong> (суточная норма, ккал/день).</p>
+                            <ul style="padding-left: 20px; margin-bottom: 15px;">
+                                <li><strong>Вид</strong> (собака/кошка) и <strong>вес</strong> — обязательны.</li>
+                                <li><strong>Кастрирован / стерилизован</strong> — отдельная галочка: влияет на коэффициент взрослого поддержания (собака 1.6 против 1.8; кошка 1.2 против 1.4).</li>
+                                <li><strong>BCS (1–9)</strong> — упитанность: при отклонении от 5 норма считается по <strong>идеальному весу</strong> (каждая единица ≈ ±10% массы).</li>
+                                <li><strong>Жизненный этап</strong> — поддержание, малоактивный, снижение веса, рост (до/после 4 мес), беременность, лактация, критическое состояние.</li>
+                                <li>Можно сразу <strong>перевести в граммы корма</strong>: введите калорийность с упаковки (ккал/100 г, /кг или /г) и кратность кормления — приложение посчитает граммы в день и за одно кормление.</li>
+                            </ul>
+                            <p><em>Коэффициенты — по рекомендациям Pet Nutrition Alliance и Merck Veterinary Manual. Это ориентировочная стартовая оценка (индивидуальные различия до ±50%) — корректируйте по динамике веса и упитанности. Результат можно сохранить в Историю.</em></p>
                         </div>
                     </div>
 
@@ -12431,7 +13107,7 @@
         // ─── Настройки интерфейса (порядок вкладок + расположение панели) ───
         const UIPrefs = {
             KEY: 'vethelper_ui_prefs',
-            DEFAULT_ORDER: ['infusion', 'subcutaneous', 'cri', 'dka', 'dosage', 'drugs', 'feedback', 'faq', 'account'],
+            DEFAULT_ORDER: ['infusion', 'subcutaneous', 'cri', 'dka', 'vitals', 'calories', 'dosage', 'drugs', 'feedback', 'faq', 'account'],
             load() {
                 try {
                     const p = JSON.parse(localStorage.getItem(this.KEY) || '{}');
@@ -12639,16 +13315,39 @@
                     }
                 };
 
-                nav.addEventListener('scroll', () => {
-                    if (!document.body.classList.contains('layout-side')) return;
-                    document.body.classList.add('rail-scrolling');
-                    markCenter();
+                // Лента сворачивается в «точки» только на мобильном в режиме «сбоку»
+                const isRailMobile = () => document.body.classList.contains('layout-side') && window.innerWidth <= 768;
+
+                const collapse = () => {
+                    document.body.classList.remove('rail-active');
+                    document.body.classList.remove('rail-scrolling');
+                    nav.querySelectorAll('.tab.tab--center').forEach(t => t.classList.remove('tab--center'));
+                };
+                // Развернуть ленту («выплывают»); magnify центральной — только при прокрутке
+                const activate = (scrolling) => {
+                    document.body.classList.add('rail-active');
+                    if (scrolling) { document.body.classList.add('rail-scrolling'); markCenter(); }
                     clearTimeout(stopTimer);
-                    stopTimer = setTimeout(() => {
-                        document.body.classList.remove('rail-scrolling');
-                        nav.querySelectorAll('.tab.tab--center').forEach(t => t.classList.remove('tab--center'));
-                    }, 1000);
+                    stopTimer = setTimeout(collapse, 1500);
+                };
+
+                nav.addEventListener('scroll', () => {
+                    if (!isRailMobile()) return;
+                    activate(true);
                 }, { passive: true });
+
+                // Касание точек разворачивает ленту. Первый «раскрывающий» тап НЕ переключает
+                // вкладку (точки маленькие и без подписей — сначала покажем, потом выберут).
+                nav.addEventListener('pointerdown', () => {
+                    if (!isRailMobile()) return;
+                    this._railWasCollapsed = !document.body.classList.contains('rail-active');
+                    activate(false);
+                }, true);
+                nav.addEventListener('click', (e) => {
+                    if (!isRailMobile()) return;
+                    if (this._railWasCollapsed) { e.stopPropagation(); e.preventDefault(); }
+                    this._railWasCollapsed = false;
+                }, true);
             }
 
             loadCalculator(type) {
@@ -12679,6 +13378,16 @@
                             if (!this.calculators.dka) this.calculators.dka = new DKACalculator(this);
                             container.innerHTML = this.calculators.dka.render();
                             this.calculators.dka.init();
+                            break;
+                        case 'vitals':
+                            if (!this.calculators.vitals) this.calculators.vitals = new VitalsMeter(this);
+                            container.innerHTML = this.calculators.vitals.render();
+                            this.calculators.vitals.init();
+                            break;
+                        case 'calories':
+                            if (!this.calculators.calories) this.calculators.calories = new CalorieCalculator(this);
+                            container.innerHTML = this.calculators.calories.render();
+                            this.calculators.calories.init();
                             break;
                         case 'dosage':
                             if (!this.calculators.dosage) this.calculators.dosage = new DosageCalculator(this);
@@ -12849,34 +13558,31 @@
                 });
                 if (saveBtn) saveBtn.addEventListener('click', () => {
                     if (this.lastResult) {
-                        const name = prompt('Введите название для сохранения (необязательно):', '');
-                        if (name !== null) { // Не отменили
-                            const result = { ...this.lastResult.result };
+                        const result = { ...this.lastResult.result };
 
-                            // Для инфузии - сохранить актуальные скорости из DOM
-                            if (this.lastResult.type === 'infusion') {
-                                const initialSpeed = document.getElementById('initialSpeed')?.textContent;
-                                const ongoingSpeed = document.getElementById('ongoingSpeed')?.textContent;
-                                const deficitHours = document.getElementById('deficitHours')?.textContent;
+                        // Для инфузии - сохранить актуальные скорости из DOM
+                        if (this.lastResult.type === 'infusion') {
+                            const initialSpeed = document.getElementById('initialSpeed')?.textContent;
+                            const ongoingSpeed = document.getElementById('ongoingSpeed')?.textContent;
+                            const deficitHours = document.getElementById('deficitHours')?.textContent;
 
-                                if (initialSpeed || ongoingSpeed) {
-                                    result.rates = {
-                                        initial: initialSpeed || result.rates?.initial,
-                                        ongoing: ongoingSpeed || result.rates?.ongoing
-                                    };
-                                }
-                                if (deficitHours) {
-                                    result.deficitHours = parseFloat(deficitHours);
-                                }
+                            if (initialSpeed || ongoingSpeed) {
+                                result.rates = {
+                                    initial: initialSpeed || result.rates?.initial,
+                                    ongoing: ongoingSpeed || result.rates?.ongoing
+                                };
                             }
-
-                            this.history.saveCalculation({
-                                type: this.lastResult.type,
-                                params: this.lastResult._params || {},
-                                result: result
-                            }, name.trim());
-                            this.showToast('✅ Сохранено в историю');
+                            if (deficitHours) {
+                                result.deficitHours = parseFloat(deficitHours);
+                            }
                         }
+
+                        this.history.saveCalculation({
+                            type: this.lastResult.type,
+                            params: this.lastResult._params || {},
+                            result: result
+                        }, '');
+                        this.showToast('✅ Сохранено в историю');
                     }
                 });
 
