@@ -8699,8 +8699,8 @@
                     const payload = JSON.parse(atob(token.split('.')[1]));
                     // exp — Unix timestamp в секундах
                     if (payload.exp && payload.exp < Date.now() / 1000) {
-                        // Токен истёк — отправляем на сервер, он выдаст новый или вернёт 401
-                        return true;
+                        this.clearToken();
+                        return false;
                     }
                     return true;
                 } catch {
@@ -11472,9 +11472,13 @@
                 try {
                     this.app.showLoading();
 
+                    const hdrs = { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON };
+                    const token = this.app.auth?.getToken();
+                    if (token) hdrs['Authorization'] = `Bearer ${token}`;
+
                     await fetch(FeedbackForm.FEEDBACK_URL, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'apikey': window.CALC_ANON },
+                        headers: hdrs,
                         body: JSON.stringify(feedback)
                     });
 
